@@ -13,7 +13,7 @@ k-armed-bandit：
 
 - 每次在 k 个选项中做出一个选择，称之为一个 **action**
 - 每次根据玩家的 action 反馈一个 **reward**，每种 action 对应的奖励值服从一个固定的概率分布（这个概率分布是我们从背后分析问题，也就是从上帝视角才能得知的，真正的玩家一开始根本不知道奖励值服从什么规律或者是否有规律，他需要通过 “学习” 来找到这一规律）
-- 玩家的目标在于使收获的奖励的**累积值**最大化，“to maximize the expected total reward over some time period, for example, over 1000 action selections, or *time steps*”
+- 玩家的目标在于使收获的奖励的累积值最大化，“to maximize the expected total reward over some time period, for example, over 1000 action selections, or *time steps*”
 
 ##### Representation of the problem
 
@@ -28,15 +28,23 @@ $$
 
 如果我们真的知道这台老虎机的 reward 规律，即知道每个 action a 的 $$q_*(a)$$ ，那么只需要每次都选择 value 最大的 action 就能累计值最大化；但我们其实不知道 $$q_*(a)$$ ，不过可以估计一个 time step t 时的 $$Q_t(a)$$，然后希望 $$Q_t(a)$$ 接近于 $$q_*(a)$$．
 
-如何估计这个 $$Q_t(a)$$ 呢？这正是后文要长篇大论的东西，暂且不提，但目前我们先假设已经有了一个评估体系，那么该如何根据**评价型反馈**来采取行动呢？
+如何估计这个 $$Q_t(a)$$ 呢？这正是后文要长篇大论的东西，暂且不提，但目前我们先假设已经有了一个评估体系，那么该如何根据评价型反馈来采取行动呢？
 
-维护 action value 的估计值，每个 time step 都选择 estimated value 最大的 action -> **greedy**
+维护 action value 的估计值，每个 time step 都选择 estimated value 最大的 action :: **greedy**
 
-选择estimated value最大的action时，我们说 你在**利用**对于 action value的了解 -> **exploit**
+选择estimated value最大的action时，我们说 你在利用对于 action value的了解 :: **exploit**
 
-如果选择一个 nongreedy action，我们说 你在**探索** -> **explore**
+如果选择一个 nongreedy action，我们说 你在探索 :: **explore**
 
-balance exploration and exploration
+*balance exploration and exploration*
+
+#### 2.2 Action-value Methods
+
+##### Sample-Average
+
+前面提到需要建设评估体系，本次就介绍一个最简单基础的方法：
+
+一个自然的想法是
 
 
 

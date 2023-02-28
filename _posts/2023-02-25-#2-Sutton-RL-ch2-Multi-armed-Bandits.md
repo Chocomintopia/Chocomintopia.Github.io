@@ -1,5 +1,3 @@
-### Chapter 2  Multi-armed Bandits
-
 本章主要针对 **nonassociative** 问题，即无需考虑每一步行动之间的影响，以及环境对行动的影响，实际上是一种很理想化的问题，实用性不大，但作为强化学习入门还不错。
 
 强化学习和其它机器学习方法最大的区别，“**evaluates** the actions taken rather than **instructs** by giving correct actions”
@@ -13,4 +11,4 @@
 
 
 
-参考：[Sutton RL2020](http://incompleteideas.net/sutton/book/RLbook2020.pdf)  [ZHANGWP-RLAI_2](https://www.zhangwp.com/notes/book-reading/RLAI/RLAI_2)
+参考：[Sutton RL2020](http://incompleteideas.net/sutton/book/RLbook2020.pdf)	[ZHANGWP-RLAI_2](https://www.zhangwp.com/notes/book-reading/RLAI/RLAI_2)

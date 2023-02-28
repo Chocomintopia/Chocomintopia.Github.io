@@ -45,10 +45,12 @@ $$
 前面提到需要建设评估体系，本次就介绍一个最简单基础的方法：
 
 一个自然的想法是将过去得到的 reward 取均值作为这一次对该 action 的评估
+
 $$
-Q_t(a)\doteq \frac{sum\; of\;rewards\;when\;a\;taken\;prior\;to\;t}{number\;of\;times\;a\;taken\;prior\;to\;t} = \frac{\sum _{i=1} ^{t-1}{R_i\cdot\mathbb{l}_{A_i=a}}}{\sum _{i=1} ^{t-1}{\mathbb{l}_{A_i=a}}}
+Q_t(a)\doteq \frac{sum\; of\;rewards\;when\;a\;taken\;prior\;to\;t}{number\;of\;times\;a\;taken\;prior\;to\;t} = \frac{\sum _{i=1} ^{t-1}{R_i\cdot\mathbb{1}_{A_i=a}}}{\sum _{i=1} ^{t-1}{\mathbb{1}_{A_i=a}}}
 $$
-$$\large \mathbb{l}_{predicate}$$ is 1 if predicate is true and 0 if it is not
+
+$$\mathbb{1}_{predicate}$$ is 1 if predicate is true and 0 if it is not
 
 
 

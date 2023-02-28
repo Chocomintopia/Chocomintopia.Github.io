@@ -6,7 +6,7 @@ baseurl: ""
 
 # This will show up at the top of index page
 site_heading: >
-    今天吃什么好呢
+    alpha
 
 email: 
 author: 39
@@ -17,7 +17,7 @@ description: >
     
 
 # This will what will show against &copy; in the footer
-copyright: 39
+copyright: 世界観
 
 # Toggle your short bio, which will displayed on your index page
 # Just toggle it and run jekyll again to see

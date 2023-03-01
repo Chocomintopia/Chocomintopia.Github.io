@@ -1,9 +1,11 @@
-本章主要针对 **nonassociative** 问题，即无需考虑每一步行动之间的影响，以及环境对行动的影响，实际上是一种很理想化的问题，实用性不大，但作为强化学习入门还不错。
+本章主要针对 **nonassociative** 问题，即无需考虑每一步行动之间的影响，以及环境对行动的影响，实际上是一种很理想化的问题，实用性不大，但作为强化学习入门还不错．
 
-强化学习和其它机器学习方法最大的区别，“**evaluates** the actions taken rather than **instructs** by giving correct actions”
+强化学习和其它机器学习方法最大的区别，“**evaluates** the actions taken rather than **instructs** by giving correct actions”．
 
 - 评价性反馈（evaluative feedback）：知道每一步 action 的好坏程度，但不知道这个 action 是否是最好 / 最差
 - 指导性反馈（instructive feedback）：直接得知最优 action
+
+
 
 #### 2.1 A k-armed Bandit Problem
 
@@ -38,6 +40,8 @@ $$
 
 *balance exploration and exploration*
 
+
+
 #### 2.2 Action-value Methods
 
 ##### Sample-Average
@@ -50,7 +54,40 @@ $$
 Q_t(a)\doteq \frac{sum\; of\;rewards\;when\;a\;taken\;prior\;to\;t}{number\;of\;times\;a\;taken\;prior\;to\;t} = \frac{\sum _{i=1} ^{t-1}{R_i\cdot\mathbb{1}_{A_i=a}}}{\sum _{i=1} ^{t-1}{\mathbb{1}_{A_i=a}}}
 $$
 
-$$\mathbb{1}_{predicate}$$ is 1 if predicate is true and 0 if it is not
+*$$\mathbb{1}_{predicate}$$ is 1 if predicate is true and 0 if it is not*
+
+分母 $$\displaystyle \sum_{i=1}^{t-1}\textbf{1}_{A_{i} = a} = 0$$，该分式无意义，可以给 $$Q_t(a)$$ 设定一个默认值，比如0；
+
+分母 $$\displaystyle \sum_{i=1}^{t-1}\textbf{1}_{A_{i} = a}\rightarrow \infty$$ ，根据大数定律，$$Q_t(a)$$ 收敛于 $$q_*(a)$$．
+
+##### greedy action
+
+$$
+A_t \doteq \mathop{\arg\max}\limits_aQ_t(a)
+$$
+
+纯粹的 greedy 会陷入局部最优，很难让每个 action 都满足 $$\displaystyle \sum_{i=1}^{t-1}\textbf{1}_{A_{i} = a}\rightarrow \infty$$，此时需要一些 exploration．
+
+##### ε-greedy action
+
+> *ε-greedy action :* 以 1-ε 的概率采取贪心行动，ε 概率随机选择一个行动 $a$
+
+能保证 $$Q_t(a)$$ 收敛于 $$q_*(a)$$，选择最优 action 的概率收敛于一个略大于 1-ε 的接近确定的值．
+
+
+
+#### 2.4 Incremental Implementation
+
+##### Optimization
+
+目前只集中于关注某个具体的 action a，其它的类比即可．
+
+令 $R_i$ 表示第 i 次选到 action a 时的 reward，$Q_n$ 表示在 action a 被选择了 n-1 次之后对于这个 action a 的 value 的估计值，则由 [Sample-Average](#Sample-Average) 有
+
+$$
+Q_n\doteq \dfrac{R_1+R_2+\cdots + R_{n-1}}{n-1}
+$$
+我们需要维护所有 reward 的记录，很占用内存，下面进行简化：
 
 
 

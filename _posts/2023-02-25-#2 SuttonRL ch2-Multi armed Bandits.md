@@ -197,5 +197,9 @@ UCB 算法就是采取满足上式的 action $$A_t$$ ，算法的核心在于新
 
 
 
-参考：[sutton RL2020](http://incompleteideas.net/sutton/book/RLbook2020.pdf)  [zhangwpblog RLAI_2](https://www.zhangwp.com/notes/book-reading/RLAI/RLAI_2)
+参考：
+
+[sutton RL2020](http://incompleteideas.net/sutton/book/RLbook2020.pdf)
+
+[zhangwpblog RLAI_2](https://www.zhangwp.com/notes/book-reading/RLAI/RLAI_2)
 

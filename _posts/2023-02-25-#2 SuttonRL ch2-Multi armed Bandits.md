@@ -70,7 +70,7 @@ $$
 
 ##### ε-greedy action
 
-> *ε-greedy action :* 以 1-ε 的概率采取贪心行动，ε 概率随机选择一个行动 $a$
+> *ε-greedy action :* 以 1-ε 的概率采取贪心行动，ε 概率随机选择一个行动 $$a$$
 
 能保证 $$Q_t(a)$$ 收敛于 $$q_*(a)$$，选择最优 action 的概率收敛于一个略大于 1-ε 的接近确定的值．
 
@@ -82,12 +82,57 @@ $$
 
 目前只集中于关注某个具体的 action a，其它的类比即可．
 
-令 $R_i$ 表示第 i 次选到 action a 时的 reward，$Q_n$ 表示在 action a 被选择了 n-1 次之后对于这个 action a 的 value 的估计值，则由 [Sample-Average](#Sample-Average) 有
+令 $$R_i$$ 表示第 i 次选到 action a 时的 reward，$$Q_n$$ 表示在 action a 被选择了 n-1 次之后对于这个 action a 的 value 的估计值，则由 [Sample-Average](#sample-average) 有
 
 $$
 Q_n\doteq \dfrac{R_1+R_2+\cdots + R_{n-1}}{n-1}
 $$
 我们需要维护所有 reward 的记录，很占用内存，下面进行简化：
+
+$$
+\begin{aligned}
+Q_{n+1} & = \dfrac{1}{n}\sum_{i=1}^{n}R_i\\
+& = \dfrac{1}{n}\left(R_n+\sum_{i=1}^{n-1}R_i\right)\\
+& = \dfrac{1}{n}\left(R_n+(n-1)\dfrac{1}{n-1}\sum_{i=1}^{n-1}R_i\right)\\
+& = \dfrac{1}{n}\left(R_n+(n-1)Q_n\right)\\
+& = \dfrac{1}{n}\left(R_n+nQ_n-Q_n\right)\\
+& = Q_n + \dfrac{1}{n}\left[R_n-Q_n\right],
+\end{aligned}
+$$
+
+$$
+NewEstimate \leftarrow OldEstimate + StepSize[Target - OldEstimate]
+$$
+
+[Target - OldEstimate] 是估计的误差 error，上面 [imcremental method](#24-incremental-implementation)的 stepsize，在每个 time step 都发生改变．对于 action a 的第 n 次 reward，此方法用的 stepsize 参数是 1/n，本书我们把 stepsize 参数设定为 $$\alpha$$，或者 $$\alpha_t(a)$$．
+
+##### pseudocode
+
+> 初始化，for a = 1 to k:
+>
+> $$\qquad Q(a)\leftarrow 0$$
+>
+> $$\qquad N(a)\leftarrow 0$$
+>
+> Repeat forever:
+>
+> $$\qquad A \leftarrow \begin{cases} \mathop{\arg\max}\limits_{a}Q(a) & \text{with probability} \ 1-\epsilon\\ \text{a random action} & \text{with probability} \ \epsilon \end{cases}$$
+>
+> $$\qquad R\leftarrow bandit(A)$$（函数 bandit(a) 是输入一个 action，返回对应的 reward）
+>
+> $$\qquad N(A)\leftarrow N(A)+1$$
+>
+> $$\qquad Q(A)\leftarrow Q(A) + \dfrac{1}{N(A)}[R-Q(A)]$$
+
+#### 2.5 Tracking a Nonstationary Problem
+
+前面都是基于 reward 符合固定概率分布，但现实中的问题并非如此理想化，该如何解决？
+
+
+
+
+
+
 
 
 

@@ -124,11 +124,64 @@ $$
 >
 > $$\qquad Q(A)\leftarrow Q(A) + \dfrac{1}{N(A)}[R-Q(A)]$$
 
+
+
 #### 2.5 Tracking a Nonstationary Problem
 
 前面都是基于 reward 符合固定概率分布，但现实中的问题并非如此理想化，该如何解决？
 
+这种情况下需要给最近的 reward 更高的权重．一个常见的做法是，将前面增量式中的参数 stepsize 设为一个**常量** $$\alpha \in (0,1]$$，则有
+$$
+Q_{n+1}\doteq Q_n + \alpha[R_n-Q_n] (\alpha \in (0,1])
+$$
+（再次强调这几节都是只针对某一个特定的 action）
 
+对上面式子进行整理：
+$$
+\begin{aligned}
+Q_{n+1} &\doteq Q_{n} + \alpha[R_{n} - Q_{n}]
+\\ &= \alpha R_{n} + (1 - \alpha)Q_{n}
+\\ &= \alpha R_{n} + (1 - \alpha)[\alpha R_{n-1} + (1-\alpha)Q_{n-1}]
+\\ &= \alpha R_{n} + (1 -\alpha)\alpha R_{n-1} + (1 - \alpha)^{2}Q_{n-1}
+\\ &= \alpha R_{n} + (1 - \alpha)\alpha R_{n-1} + (1-\alpha)^{2}\alpha R_{n-2} +...
+\\ &+(1-\alpha)^{n-1}\alpha R_{1} + (1-\alpha)^{n}Q_{1}
+\\ &= (1-\alpha)^{n}Q_{1}+\sum^{n}_{i=1}(1-\alpha)^{n-i}\alpha R_{i}
+\end{aligned}
+$$
+$$\displaystyle (1-\alpha)^{n}+\sum^{n}_{i=1}\alpha(1-\alpha)^{n-i}=1$$，因此这是一个加权平均式，称为 指数近因加权平均（Exponential Recency-weighted Average）．i 很大时，$$R_i$$ 在式子中的影响占比才更大，符合将学习重心放在近期 reward 的要求．
+
+
+
+#### 2.6 Optimistic Initial Values
+
+这一节简单研究了以下初始预估值对模型学习效果的影响．
+$$
+Q_{n+1} = (1-\alpha)^{n}Q_{1}+\sum^{n}_{i=1}(1-\alpha)^{n-i}\alpha R_{i}
+$$
+前面讨论的所有方法，对于每个 action 而言，评估体系显然都会一定程度上受到初始值 $$Q_1$$ 的影响，统计学语境中，称为被初值*偏置（bais）*了．
+
+将初始值调高，有着鼓励模型在早期更多地进行探索的作用．以 greedy 策略为例，一个很高的初始预期值（称为**乐观初值**），会诱使模型去选择这个 action ，然而事实上 reward 要比估计值差很多，误差值 $[R_n - Q_n]$ 会是一个较大的负数，导致模型对这个 action “失望”，评价降低，下一次，模型就会去主动尝试其他 action ．
+
+乐观初值仅适用于固定概率分布的问题，它只会在早期 explore，后期仍以 exploit为主，然而 nonstationary 问题下必须时刻探索最近的 reward，乐观初值不再适用．
+
+
+
+#### 2.7 Upper-Confidence-Bound Action Selection(UCB)
+
+前面的 ε-greedy 在探索时，每个 action 都是被等概率选择的，但现实中可能会有某个 action 一直返回一个低 reward，潜力低下，需要调低这个不好的 action 的概率，而尽可能多地探索潜力更高的 action．
+$$
+A_{t} \doteq \mathop{\arg\max}_{a}\left[Q_{t}(a) + c\sqrt{\frac{\ln{t}}{N_{t}(a)}}\right]
+$$
+UCB 算法就是采取满足上式的 action $$A_t$$ ，算法的核心在于新加入的 $$c\sqrt{\dfrac{\ln t}{N_t(a)}}$$，以适当地提高更加不确定、有潜力的 action 被探索的概率．
+
+ - $$c\sqrt{\dfrac{\ln t}{N_t(a)}}$$ ：对于估值的不确定性．更广义地讲，其意义为方差．
+ - $$c$$ ：控制了探索的程度，决定了置信度．
+ - $$N_t(a)$$ ：第 t 步之前 action a 被选中的次数．$$N_t(a)$$ 如果增加，会给公式中的此项带来降低的影响效果．
+ - $$\ln t$$ ：时间必然会增加，故此项也是一直在保持增加的．但它的影响效果与 action a 的选择状态密切相关．如果 action a 不被选择， $$\ln t$$ 增加但 $$N_t(a)$$ 不变，故此项变大，不确定性增加；反之，$$N_{t+1}(a) = N_t(a) + 1$$ ，虽然 $$\ln t$$ 增加但其增速不如 $$N_t(a)$$ ，所以此项整体变小，不确定性降低．
+
+
+
+2.8 2.9 略
 
 
 

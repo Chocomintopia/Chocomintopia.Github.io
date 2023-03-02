@@ -12,9 +12,11 @@
 - **environment**: 环境 与 agent 交互的一切外界物体的集合
 
 将 agent 与 environment 的交互看作离散的时间序列，agent 从感知到初始环境 $$S_0$$ 开始，然后决定做一个相应的 action $$A_0$$，environment 相应地发生改变到新的状态 $$S_1$$，并反馈给 agent 一个即时 reward $$R_1$$，然后 agent 又根据状态 $$S_1$$ 做一个 action $$A_1$$，environment 相应改变为 $$S_2$$，并反馈 reward $$R_2$$，这样的交互可以一直下去．
+
 $$
 S_0,A_0,S_1,R_1,A_1,S_2,R_2,...,S_{t-1},R_{t-1},S_t,R_t,...,
 $$
+
 其中 $$R_t=R(S_{t-1},A_{t-1},S_t)$$ 是 t 时刻的即时 reward．
 
 那么如何划清 agent 和 environment 的界限？

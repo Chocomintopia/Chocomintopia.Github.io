@@ -90,7 +90,7 @@ $$
 
 许多情况中，agent 和 environment 的交互过程不能被分割成 episodes，而是没有极限地持续下去，称为 continuing tasks．此时上面的 $$G_t$$ 会出现问题，因为 final time step 会是 $$T=\infty$$ ，我们尝试最大化的 return 也很容易变成无穷．下面引入削减系数 $$\gamma$$．
 
- ##### Discounted Return
+##### Discounted Return
 
 $$
 G_t\doteq R_{t+1}+\gamma R_{t+2}+\gamma^2 R_{t+3}+\cdots = \sum_{k=0}^{\infty}\gamma^kR_{t+k+1}

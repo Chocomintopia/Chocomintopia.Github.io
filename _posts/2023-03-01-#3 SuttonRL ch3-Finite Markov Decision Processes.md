@@ -159,10 +159,12 @@ policy 是一个从 states 到 选择每个可能的 action 的概率 的映射�
 **练习 3.11**  如果当前 state 为 $$S_t$$，并且根据随机 policy $$\pi$$ 来选择 action，那么对于 $$\pi$$ 和 4-argument function $$p$$ (3.2)，$$R_{t+1}$$ 的期望是多少？
 
 policy $$\pi$$ 下的 state s 的 value function 表示为 $$v_{\pi}(s)$$，是从 state s 开始并且之后遵循 policy $$\pi$$ 的 expected return．对于 MDPs，可以正式地定义 $$v_{\pi}$$ 为：
+
 $$
 v_{\pi}(s)\doteq\mathbb{E}_{\pi}\left[G_t|S_t=s\right]=\mathbb{E}_{\pi}\left[\sum_{k=0}^{\infty}\gamma^kR_{t+k+1}\mid S_t=s\right], \forall s \in \mathcal{S}
 $$
-其中 $$\mathbb{E}[·]$$ 表示 agent 遵循 policy $$\pi$$ 的随机变量的 expected value，t 是任意 time step．注意，如果有 terminal value，其 value 一直为 0．我们称 function $$v_{\pi}$$ 是 **policy $$\pi$$ 的 state-value function **．
+
+其中 $$\mathbb{E}[·]$$ 表示 agent 遵循 policy $$\pi$$ 的随机变量的 expected value，t 是任意 time step．注意，如果有 terminal value，其 value 一直为 0．我们称 function $$v_{\pi}$$ 是 **policy $$\pi$$ 的 state-value function**．
 
 
 

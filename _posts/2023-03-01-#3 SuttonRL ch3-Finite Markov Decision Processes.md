@@ -20,10 +20,13 @@ $$
 其中 $$R_t=R(S_{t-1},A_{t-1},S_t)$$ 是 t 时刻的即时 reward．
 
 在 finite MDP 中，$$R_t$$ 和 $$S_t$$ 仅依赖于前一个 state 和 action（$$S_{t-1}$$ 和 $$A_{t-1}$$），对于 $$\forall s',s\in \mathcal{S},r\in \mathcal{R},a\in \mathcal{A}(s)$$，有： 
+
 $$
 p(s',r\vert s,a)\doteq Pr\{S_t=s',R_t=r\vert S_{t-1}=s,A_{t-1}=a\}\tag{3.2}
 $$
+
 function $$p$$ 定义了 MDP 的 **dynamics**．$$\doteq$$ 意为这是一个定义，而不是根据从前的定义得出的事实．dynamics function $$p : \mathcal{S} \times \mathcal{R} \times \mathcal{S} \times \mathcal{A} \rightarrow [0,1]$$ 是一个普通的 4 arguments - deterministic function，中间的 “$$\vert$$” 来自于条件概率，但此处只是提醒我们 $$p$$ 为每个 s 和 a 的选择 列举了概率分布，即
+
 $$
 \sum_{s'\in\mathcal{S}}\sum_{r\in\mathcal{R}}p(s',r|s,a)=1, for\;all\;s\in \mathcal{S},a\in \mathcal{A}(s)
 $$
@@ -31,19 +34,23 @@ $$
 如果一个 state 包含 对于 future 有影响的 过去 agent-environment 交互的 所有方面的信息（“The state must include information about all aspects of the past agent-environment interaction that make a difference for the future”），称其具有 **Markov property**．
 
 3-argument function $$P:\mathcal{S} \times \mathcal{S} \times\mathcal{A} \rightarrow [0,1]$$（state-transition probabilities 状态转移概率）
+
 $$
 p(s'|s,a)\doteq\mathrm{Pr}\left\{S_t=s'|S_{t-1}=s,A_{t-1}=a\right\}=\sum_{r\in\mathcal{R}}p(s',r|s,a)
 $$
 
 2-argument function $$r:\mathcal{S} \times \mathcal{A} \rightarrow \mathbb{R}$$（the expected rewards for state-action pairs）
+
 $$
 r(s,a)\doteq \mathbb{E}\left[R_t|S_{t-1}=s,A_{t-1}=a\right]=\sum_{r\in\mathcal{R}}r\sum_{s'\in\mathcal{S}}p(s',r|s,a)
 $$
 
 3-argument function $$r:\mathcal{S} \times \mathcal{A} \times \mathcal{S}\rightarrow \mathbb{R}$$（the expected rewards for state-action-next state）
+
 $$
 r(s,a,s')\doteq \mathbb{E}\left[R_t|S_{t-1}=s,A_{t-1}=a,S_t=s'\right]=\sum_{r\in\mathcal{R}}r\frac{p(s',r|s,a)}{p(s'|s,a)}
 $$
+
 本书主要常用 (3.2)，其它几个偶尔用．
 
 <br>

@@ -2,7 +2,7 @@
 
 会涉及到 ch2 提到的评估反馈，但现在也会开始考虑问题与环境的联系，也就是在不同情境下去做不同的选择．MDPs 是决策序列的一种经典形式化模型，其中的行动不仅会影响当前的即时 reward，也会通过未来的 reward 影响后续的情况或状态．
 
-
+<br>
 
 #### 3.1 The Agent–Environment Interface
 
@@ -19,9 +19,38 @@ $$
 
 其中 $$R_t=R(S_{t-1},A_{t-1},S_t)$$ 是 t 时刻的即时 reward．
 
+在 finite MDP 中，$$R_t$$ 和 $$S_t$$ 仅依赖于前一个 state 和 action（$$S_{t-1}$$ 和 $$A_{t-1}$$），对于 $$\forall s',s\in \mathcal{S},r\in \mathcal{R},a\in \mathcal{A}(s)$$，有： 
+$$
+p(s',r\vert s,a)\doteq Pr\{S_t=s',R_t=r\vert S_{t-1}=s,A_{t-1}=a\}\tag{3.2}
+$$
+function $$p$$ 定义了 MDP 的 **dynamics**．$$\doteq$$ 意为这是一个定义，而不是根据从前的定义得出的事实．dynamics function $$p : \mathcal{S} \times \mathcal{R} \times \mathcal{S} \times \mathcal{A} \rightarrow [0,1]$$ 是一个普通的 4 arguments - deterministic function，中间的 “$$\vert$$” 来自于条件概率，但此处只是提醒我们 $$p$$ 为每个 s 和 a 的选择 列举了概率分布，即
+$$
+\sum_{s'\in\mathcal{S}}\sum_{r\in\mathcal{R}}p(s',r|s,a)=1, for\;all\;s\in \mathcal{S},a\in \mathcal{A}(s)
+$$
+
+如果一个 state 包含 对于 future 有影响的 过去 agent-environment 交互的 所有方面的信息（“The state must include information about all aspects of the past agent-environment interaction that make a difference for the future”），称其具有 **Markov property**．
+
+3-argument function $$P:\mathcal{S} \times \mathcal{S} \times\mathcal{A} \rightarrow [0,1]$$（state-transition probabilities 状态转移概率）
+$$
+p(s'|s,a)\doteq\mathrm{Pr}\left\{S_t=s'|S_{t-1}=s,A_{t-1}=a\right\}=\sum_{r\in\mathcal{R}}p(s',r|s,a)
+$$
+
+2-argument function $$r:\mathcal{S} \times \mathcal{A} \rightarrow \mathbb{R}$$（the expected rewards for state-action pairs）
+$$
+r(s,a)\doteq \mathbb{E}\left[R_t|S_{t-1}=s,A_{t-1}=a\right]=\sum_{r\in\mathcal{R}}r\sum_{s'\in\mathcal{S}}p(s',r|s,a)
+$$
+
+3-argument function $$r:\mathcal{S} \times \mathcal{A} \times \mathcal{S}\rightarrow \mathbb{R}$$（the expected rewards for state-action-next state）
+$$
+r(s,a,s')\doteq \mathbb{E}\left[R_t|S_{t-1}=s,A_{t-1}=a,S_t=s'\right]=\sum_{r\in\mathcal{R}}r\frac{p(s',r|s,a)}{p(s'|s,a)}
+$$
+本书主要常用 (3.2)，其它几个偶尔用．
+
+<br>
+
 那么如何划清 agent 和 environment 的界限？
 
-不能被 agent 任意改变的事物，均认为其属于 environment．agent 往往能够得知很多外界的信息，甚至能知道 reward 关于其 action 和 state 的具体函数，但我们还是得把 reward 的计算过程放在 agent 外界，而不能让他自己进行计算．这是因为，正是这个 reward 机制定义了 agent 所要学习去处理的任务，所以这个任务必须是超出 agent 控制能力的，反之则本末倒置了，如果 agent 能自我计算 / 改变 reward ，那他会按照自己的一些「理解」去学习问题，而没有面对问题的「客观本质」去学习．
+不能被 agent 任意改变的事物，均认为其属于 environment．agent 往往能够得知很多外界的信息，甚至能知道 reward 关于其 action 和 state 的具体函数，但我们还是得把 reward 的计算过程放在 agent 外界，而不能让他自己进行计算．这是因为，正是这个 reward 机制定义了 agent 所要学习去处理的任务，所以这个任务必须是超出 agent 控制能力的，反之则本末倒置了，如果 agent 能自我计算 / 改变 reward ，那他会按照自己的一些「理解」去学习问题，而没有面对问题的「客观本质」去学习． 
 
 所以，agent 与 environment 的界限，代表着 学习者 / 决策体 的绝对控制权，而不是其掌握的 知识 / 信息．而一旦确定好三个关键因素 state、action、reward，就意味着这个界限已被确定下来．
 
@@ -53,7 +82,7 @@ $$
 - 如果耗尽电量而没能及时返回充电，反馈一个较大负值作为惩罚
 - 其余情况反馈 0 值 reward 
 
-
+<br>
 
 #### 3.2 Goals and Rewards
 
@@ -101,7 +130,7 @@ $$
 - 若 $$\gamma \rightarrow 0$$，agent 更着重于最大化即时奖励值，也就是说，此时他的目标为学习如何选择 $$A_t$$ 来最大化 $$R_{t+1}$$
 - 若 $$\gamma \rightarrow 1$$，返回值会更加强烈地把未来的奖励情况考虑进来，使得 agent 变得更有「远见」
 
-
+<br>
 
 #### 3.4 Unified Notation for Episodic and Continuing Tasks
 
@@ -111,7 +140,7 @@ $$
 
 此外，我们还需要统一 episode tasks 和 continuing tasks 的形式，他们分别有着有限项的 return 公式和无限项的 return 公式，为了统一公式，我们针对 episode tasks 加入一种特殊的 absorbing state，其特点是状态的交互和转移过程都只在自身进行，且 reward 为 0 ，如下图所示：
 
-![Absorbing State](images/3_unified.png)
+![Absorbing State](/images/3_unified.png)
 
 这样 episode tasks 也能表示为无穷项了，只不过原本的 terminal state 之后 reward 为 0，不对公式造成影响．于是我们可以统一地定义：
 
@@ -119,16 +148,21 @@ $$
 G_t\doteq \sum_{k=t+1}^{T}\gamma^{k-t-1}R_k
 $$
 
-
+<br>
 
 #### 3.5 Policies and Value Functions
 
+几乎所有的强化学习算法都包含估计 **value function** —— 估计 agent 在一个给定的 state 下有*多好*（或者在一个给定 state 下做出一个给定的 action 有多好）的 states（或者state-action对）的函数．这里面“多好”（how good）的概念是指 future reward 的期望，准确地说是指 return 的期望．当然 agent 的 future reward 期望取决于它将要采取什么 action ．因此，value function 是由特定的行动方式（称之为 **policy**）而决定的．
 
+policy 是一个从 states 到 选择每个可能的 action 的概率 的映射．如果 agent 在时间 t 遵循 policy $$\pi$$ ，那么 $$\pi(a\vert s)$$ 是在 $$S_t=s$$ 时 $$A_t=a$$ 的概率．类似于 $$ p$$，$$\pi$$ 是一个普通的函数，$$\pi(a\vert s)$$ 中间的 “$$\vert$$” 仅仅是提示我们它为每一个 $$s\in \mathcal{S}$$ 确定了一个关于 $$a\in \mathcal{A}(s)$$ 的概率分布．强化学习方法规定了 agent 的 policy 如何因其经验而改变．
 
+**练习 3.11**  如果当前 state 为 $$S_t$$，并且根据随机 policy $$\pi$$ 来选择 action，那么对于 $$\pi$$ 和 4-argument function $$p$$ (3.2)，$$R_{t+1}$$ 的期望是多少？
 
-
-
-
+policy $$\pi$$ 下的 state s 的 value function 表示为 $$v_{\pi}(s)$$，是从 state s 开始并且之后遵循 policy $$\pi$$ 的 expected return．对于 MDPs，可以正式地定义 $$v_{\pi}$$ 为：
+$$
+v_{\pi}(s)\doteq\mathbb{E}_{\pi}\left[G_t|S_t=s\right]=\mathbb{E}_{\pi}\left[\sum_{k=0}^{\infty}\gamma^kR_{t+k+1}\mid S_t=s\right], \forall s \in \mathcal{S}
+$$
+其中 $$\mathbb{E}[·]$$ 表示 agent 遵循 policy $$\pi$$ 的随机变量的 expected value，t 是任意 time step．注意，如果有 terminal value，其 value 一直为 0．我们称 function $$v_{\pi}$$ 是 **policy $$\pi$$ 的 state-value function **．
 
 
 

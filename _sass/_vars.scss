@@ -1,6 +1,6 @@
 @font-face{
     font-family: 'FZFWZhuZiMinchoR';
-    src: url("../fonts/FZFWZhuZiMinchoR.woff") format("woff")
+    src: url("../fonts/FZFWZhuZiMinchoR.woff2") format("woff2")
 }
 
 /* josefin-sans-100 - latin */
@@ -12,8 +12,9 @@
          url('../fonts/josefin-sans-v15-latin-100.woff2') format('woff2'), /* Chrome 26+, Opera 23+, Firefox 39+ */
          url('../fonts/josefin-sans-v15-latin-100.woff') format('woff'); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
   }
-  /* josefin-sans-300 - latin */
-  @font-face {
+  
+/* josefin-sans-300 - latin */
+@font-face {
     font-family: 'Josefin Sans';
     font-style: normal;
     font-weight: 300;
@@ -21,8 +22,9 @@
          url('../fonts/josefin-sans-v15-latin-300.woff2') format('woff2'), /* Chrome 26+, Opera 23+, Firefox 39+ */
          url('../fonts/josefin-sans-v15-latin-300.woff') format('woff'); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
   }
-  /* josefin-sans-200 - latin */
-  @font-face {
+
+/* josefin-sans-200 - latin */
+@font-face {
     font-family: 'Josefin Sans';
     font-style: normal;
     font-weight: 200;
@@ -30,8 +32,9 @@
          url('../fonts/josefin-sans-v15-latin-200.woff2') format('woff2'), /* Chrome 26+, Opera 23+, Firefox 39+ */
          url('../fonts/josefin-sans-v15-latin-200.woff') format('woff'); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
   }
-  /* josefin-sans-regular - latin */
-  @font-face {
+
+/* josefin-sans-regular - latin */
+@font-face {
     font-family: 'Josefin Sans';
     font-style: normal;
     font-weight: 400;
@@ -39,8 +42,9 @@
          url('../fonts/josefin-sans-v15-latin-regular.woff2') format('woff2'), /* Chrome 26+, Opera 23+, Firefox 39+ */
          url('../fonts/josefin-sans-v15-latin-regular.woff') format('woff'); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
   }
-  /* josefin-sans-600 - latin */
-  @font-face {
+  
+/* josefin-sans-600 - latin */
+@font-face {
     font-family: 'Josefin Sans';
     font-style: normal;
     font-weight: 600;
@@ -48,8 +52,9 @@
          url('../fonts/josefin-sans-v15-latin-600.woff2') format('woff2'), /* Chrome 26+, Opera 23+, Firefox 39+ */
          url('../fonts/josefin-sans-v15-latin-600.woff') format('woff'); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
   }
-  /* josefin-sans-500 - latin */
-  @font-face {
+
+/* josefin-sans-500 - latin */
+@font-face {
     font-family: 'Josefin Sans';
     font-style: normal;
     font-weight: 500;
@@ -57,8 +62,9 @@
          url('../fonts/josefin-sans-v15-latin-500.woff2') format('woff2'), /* Chrome 26+, Opera 23+, Firefox 39+ */
          url('../fonts/josefin-sans-v15-latin-500.woff') format('woff'); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
   }
-  /* josefin-sans-700 - latin */
-  @font-face {
+  
+/* josefin-sans-700 - latin */
+@font-face {
     font-family: 'Josefin Sans';
     font-style: normal;
     font-weight: 900;

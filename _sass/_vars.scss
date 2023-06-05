@@ -1,18 +1,18 @@
 @font-face{
-    font-family: 'FZFWZhuZiAOldMinchoR';
-    src: url("../fonts/FZFWZhuZiAOldMinchoR.woff2") format("woff2")
+    font-family: 'FZXBSJW';
+    src: url("../fonts/FZXBSJW.woff2") format("woff")
 }
 
 @font-face {
     font-family: 'Josefin Sans';
     src: local(''),
-         url('../fonts/josefin-sans-v15-latin-400.woff2') format('woff2'), 
-         url('../fonts/josefin-sans-v15-latin-400.woff') format('woff'); 
+         url('../fonts/josefin-sans-v15-latin-regular.woff2') format('woff2'), 
+         url('../fonts/josefin-sans-v15-latin-regular.woff') format('woff'); 
   }
 
 // Font stacks
 $font-stack-one: 'ubuntu';
-$font-stack-two: 'Josefin Sans', 'FZFWZhuZiAOldMinchoR';
+$font-stack-two: 'Josefin Sans', 'FZXBSJW';
 $font-stack-three: 'Montserrat';
 $code-font: 'consolas', 'Menlo', 'Roboto Mono', 'Roboto';
 

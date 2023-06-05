@@ -5,8 +5,8 @@
 @import "rrssb";
 
 @font-face{
-    font-family: 'FZXBS';
-    src: url("../fonts/FZXBSJW.woff") format("woff")
+    font-family: 'FZFWZhuZiMinchoL';
+    src: url("../fonts/FZFWZhuZiMinchoL.woff") format("woff")
 }
 
 html {
@@ -15,7 +15,7 @@ html {
     padding: 0;
 }
 body {
-    font-family: 'FZXBS';
+    font-family: 'ubuntu', 'FZFWZhuZiMinchoL';
     height: 100%;
     overflow: auto;
 }

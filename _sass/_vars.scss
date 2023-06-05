@@ -1,14 +1,13 @@
 @font-face{
     font-family: 'FZFWZhuZiMinchoR';
-    src: url("../fonts/FZFWZhuZiMinchoR.woff2") format("woff2")
+    src: url("../fonts/FZFWZhuZiAOldMinchoR.woff2") format("woff2")
 }
 
-/* josefin-sans-500 - latin */
 @font-face {
     font-family: 'Josefin Sans';
     src: local(''),
-         url('../fonts/josefin-sans-v15-latin-500.woff2') format('woff2'), /* Chrome 26+, Opera 23+, Firefox 39+ */
-         url('../fonts/josefin-sans-v15-latin-500.woff') format('woff'); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+         url('../fonts/josefin-sans-v15-latin-400.woff2') format('woff2'), 
+         url('../fonts/josefin-sans-v15-latin-400.woff') format('woff'); 
   }
 
 // Font stacks

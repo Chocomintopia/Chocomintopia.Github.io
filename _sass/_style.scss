@@ -10,9 +10,10 @@ html {
     padding: 0;
 }
 body {
-    font-family: $font-stack-one;
+    font-family: $font-stack-two;
     height: 100%;
     overflow: auto;
+    src: url('../fonts/YuMincho-Medium.otf') format('truetype');
 }
 .site-name {
     color: $accent-color;

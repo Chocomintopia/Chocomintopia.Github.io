@@ -1,5 +1,11 @@
+@font-face{
+    font-family: 'FZFWZhuZiMinchoL';
+    src: url("../fonts/FZFWZhuZiMinchoL.woff") format("woff")
+}
+
 // Font stacks
 $font-stack-one: 'ubuntu';
+$font-stack-two: 'Time News Roman', 'FZFWZhuZiMinchoL';
 $font-stack-three: 'Montserrat';
 $code-font: 'consolas', 'Menlo', 'Roboto Mono', 'Roboto';
 

@@ -4,10 +4,6 @@
 @import "typography";
 @import "rrssb";
 
-@font-face{
-    font-family: 'FZFWZhuZiMinchoL';
-    src: url("../fonts/FZFWZhuZiMinchoL.woff") format("woff")
-}
 
 html {
 	height: 100%;
@@ -15,7 +11,7 @@ html {
     padding: 0;
 }
 body {
-    font-family: 'ubuntu', 'FZFWZhuZiMinchoL';
+    font-family: $font-stack-two;
     height: 100%;
     overflow: auto;
 }

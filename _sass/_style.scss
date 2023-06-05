@@ -4,16 +4,20 @@
 @import "typography";
 @import "rrssb";
 
+@font-face{
+    font-family: 'FZXBS';
+    src: url("../fonts/FZXBSJW.woff") format("woff")
+}
+
 html {
 	height: 100%;
     margin: 0;
     padding: 0;
 }
 body {
-    font-family: $font-stack-two;
+    font-family: 'FZXBS';
     height: 100%;
     overflow: auto;
-    src: url('../fonts/FZXBSJW.woff') format('woff');
 }
 .site-name {
     color: $accent-color;

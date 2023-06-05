@@ -1,8 +1,3 @@
-@font-face{
-    font-family: 'FZXBSJW';
-    src: url("../fonts/FZXBSJW.woff2") format("woff")
-}
-
 @font-face {
     font-family: 'Josefin Sans';
     src: local(''),
@@ -12,7 +7,7 @@
 
 // Font stacks
 $font-stack-one: 'ubuntu';
-$font-stack-two: 'Josefin Sans', 'FZXBSJW';
+$font-stack-two: 'Josefin Sans';
 $font-stack-three: 'Montserrat';
 $code-font: 'consolas', 'Menlo', 'Roboto Mono', 'Roboto';
 

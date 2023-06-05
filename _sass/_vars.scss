@@ -1,9 +1,15 @@
 @font-face {
     font-family: 'Josefin Sans';
     src: local(''),
-         url('../fonts/josefin-sans-v15-latin-500.woff2') format('woff2'), 
-         url('../fonts/josefin-sans-v15-latin-500.woff') format('woff'); 
+         url('../fonts/josefin-sans-v15-latin-400.woff2') format('woff2'), 
+         url('../fonts/josefin-sans-v15-latin-400.woff') format('woff'); 
   }
+
+@font-face {
+font-family: 'pingfang';
+src: local(''),
+        url('../fonts/pingfang-regular.woff2') format('woff2');
+}
 
 // Font stacks
 $font-stack-one: 'ubuntu';

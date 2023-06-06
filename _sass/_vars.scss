@@ -1,18 +1,12 @@
 @font-face {
     font-family: 'Josefin Sans';
     src: local(''),
-         url('../fonts/JosefinSans-Light.woff2') format('woff2');
+         url('../fonts/JosefinSans-Regular.woff2') format('woff2');
   }
-
-@font-face {
-font-family: 'pingfang';
-src: local(''),
-        url('../fonts/pingfang-regular.woff2') format('woff2');
-}
 
 // Font stacks
 $font-stack-one: 'ubuntu';
-$font-stack-two: 'Josefin Sans';
+$font-stack-two: 'Josefin Sans', 'PingFang SC';
 $font-stack-three: 'Montserrat';
 $code-font: 'consolas', 'Menlo', 'Roboto Mono', 'Roboto';
 

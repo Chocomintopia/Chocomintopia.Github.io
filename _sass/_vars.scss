@@ -1,8 +1,7 @@
 @font-face {
     font-family: 'Josefin Sans';
     src: local(''),
-         url('../fonts/josefin-sans-v15-latin-400.woff2') format('woff2'), 
-         url('../fonts/josefin-sans-v15-latin-400.woff') format('woff'); 
+         url('../fonts/JosefinSans-Light.woff2') format('woff2');
   }
 
 @font-face {
@@ -20,7 +19,7 @@ $code-font: 'consolas', 'Menlo', 'Roboto Mono', 'Roboto';
 // Spacing and Sizes
 $base-font-size: 1.2em;
 $base-line-height: 2.0;
-$base-spacing: $base-line-height * 1em;
+$base-spacing: $base-line-height * 2em;
 $small-spacing: $base-spacing / 2;
 $max-width: 800px;
 

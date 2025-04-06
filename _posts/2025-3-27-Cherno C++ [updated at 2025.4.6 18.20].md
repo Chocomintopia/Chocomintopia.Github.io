@@ -328,4 +328,4 @@ x86是32位 win32
 
 然后点确认 我们在project_test项目那里右键—清理 删除许多旧文件 这样删除不彻底 还是手动去文件资源管理器把有debug和x64的文件夹都删除 重新build 现在exe文件就在 `C:\coding\alpha\C++\test\Project_test\bin\x64\Debug` 这个文件夹里同时还有`Project_test.pdb`和`Project_test.ilk` 许多中间文件都在`C:\coding\alpha\C++\test\Project_test\bin\intermediates\x64\Debug`
 
-在project_test项目那里右键—属性 输出目录那里 在编辑的时候 最右侧有一个选项符号 展开 点击 <编辑...> 然后点击 宏>> 我们就可以看到很多`$( )`这种形式的东西 在上方空白方框里 搜索SolutionDir 可以看到在本例中的目录为`C:\coding\alpha\C++\test\Project_test\` 在最后它是自带 \ 的 所以我们在设置输出目录和中间目录时 `$(SolutionDir)`与`bin`中间 不用写 \
+在project_test项目那里右键—属性 输出目录那里 在编辑的时候 最右侧有一个选项符号 展开 点击 <编辑...> 然后点击 宏>> 我们就可以看到很多 \$( ) 这种形式的东西 在上方空白方框里 搜索SolutionDir 可以看到在本例中的目录为 `C:\coding\alpha\C++\test\Project_test\` 在最后它是自带 \ 的 所以我们在设置输出目录和中间目录时 \$(SolutionDir) 与 bin 中间 不用写 \

@@ -57,7 +57,10 @@ tracking_id:  # GA Tracking ID
 markdown: kramdown
 
 kramdown:
-  math_engine: katex
+  math_engine: mathjex
+  syntax_highlighter: rouge
+  syntax_highlighter_opts:
+    linenos: true
 
 plugins:
     - jekyll-paginate

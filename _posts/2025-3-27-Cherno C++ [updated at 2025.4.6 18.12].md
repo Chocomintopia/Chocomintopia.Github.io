@@ -1,4 +1,4 @@
-存在排版错乱 在typora显示正常 但在github pages渲染出现问题 不再耗费时间修复 若感到困扰请查看[markdwon文件](https://github.com/Chocomintopia/Chocomintopia.Github.io/tree/main/_posts)
+存在排版错乱 在typora显示正常 但在github pages渲染出现问题 不再耗费时间修复 若感到困扰请查看[markdwon文件](https://github.com/Chocomintopia/Chocomintopia.Github.io/blob/main/_posts/2025-3-27-Cherno%20C%2B%2B.md)
 
 我们有很多尚未解决的问题 在那些文本里我使用了 *暂时* 这个词语 请使用搜索功能
 

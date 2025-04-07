@@ -130,21 +130,20 @@
         margin: 0.1em 0;
     }
 
-    p > code {
+    p > code, li > code {
         color: $git-black-color;
         //padding: 0.1em 0.1em 0.1em 0.1em;
         padding: 0.2em 0.4em;
         border-radius: 0.3em;
         font-size: 0.9em;
         line-height: 1.4;
-        vertical-align: baseline;
-        position: relative;
-        top: 0.1em;
+        vertical-align: middle;
         background: #f7f7f7;
+        font-family: $code-font;
     }
 
     pre code {
-        font-size: 0.9em;
+        font-size: 19px;
         padding: 1em;
         display: block;
         border-radius: 5px;
@@ -171,5 +170,17 @@
 
     li p {
         font-size: 19px;
+    }
+
+    ol, ul {
+        li > code {
+            background: #f7f7f7;
+        }
+        // Éî²ãÇ¶Ì×Ö§³Ö
+        ol, ul {
+            li > code {
+                background: #f7f7f7;
+            }
+        }
     }
 }

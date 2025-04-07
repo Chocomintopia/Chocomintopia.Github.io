@@ -57,6 +57,7 @@ tracking_id:  # GA Tracking ID
 markdown: kramdown
 
 kramdown:
+  hard_wrap: true
   math_engine: mathjex
   syntax_highlighter: rouge
   syntax_highlighter_opts:

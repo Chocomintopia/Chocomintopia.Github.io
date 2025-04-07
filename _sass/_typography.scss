@@ -5,25 +5,28 @@
     hr {
         margin: $base-spacing 0;
     }
-	sup {
-		vertical-align: super;
-		font-size: 12px;
-	}
+
+    sup {
+        vertical-align: super;
+        font-size: 12px;
+    }
+
     p {
         line-height: $base-line-height;
     }
+
     h1, h2, h3, h4, h5, h6, dl {
         margin: 1em 0;
     }
-    code {
-        font-size: 19px; 
-        color: #333333;
-        font-family: $code-font;
-        padding: $base-spacing $base-spacing/10;
-        border-radius: 5px;
-        background: #f7f7f7;
-    }
-    
+    //code {
+    //    font-size: 19px;
+    //    color: #333333;
+    //    font-family: $code-font;
+    //    padding: $base-spacing $base-spacing/10;
+    //    border-radius: 5px;
+    //    background: #f7f7f7;
+    //}
+
     .post-title {
         margin-top: 0.1em;
         font-size: 40px;
@@ -31,39 +34,49 @@
         font-family: 'Montserrat';
         color: $accent-color;
     }
+
     h1 {
         font-size: 35px;
     }
+
     h2 {
         font-size: 32px;
     }
+
     h3 {
         font-size: 29px;
     }
+
     h4 {
         font-size: 26px;
     }
+
     h5 {
         font-size: 23px;
     }
+
     h6 {
         font-size: 20px;
     }
+
     p {
         font-size: 19px;
         margin: $base-spacing/3 0;
         //font-weight: lighter;
     }
+
     a {
         text-decoration: none;
         border-bottom: 2px solid $underline-color;
     }
+
     a:hover {
         color: inherit;
         -webkit-transition: 0.4s ease;
         -moz-transition: 0.4s ease;
         border-bottom: 2px solid $accent-color;
     }
+
     .disabled {
         font-size: 17px;
         color: #fff;
@@ -71,12 +84,14 @@
         border: none;
         padding: $base-spacing/4 $base-spacing/2;
     }
+
     .disabled:hover {
         color: #fff;
         background: $accent-color;
         border: none;
         padding: $base-spacing/4 $base-spacing/2;
     }
+
     .capsule {
         padding: $base-spacing/4 $base-spacing/2;
         font-size: 17px;
@@ -84,16 +99,20 @@
         background: $accent-color;
         color: #fff;
     }
+
     .anchorjs-link {
         border: none;
     }
+
     .anchorjs-link:hover {
         color: $accent-color;
         border: none;
     }
+
     .hide {
         display: inline-block;
     }
+
     blockquote {
         font-size: $base-font-size;
         padding: 0 0 0 $base-spacing;
@@ -102,6 +121,7 @@
         line-height: 1.8;
         border-left: $small-spacing / 3 solid $light-gray-color;
     }
+
     img {
         width: auto;
         height: auto;
@@ -111,26 +131,44 @@
     }
 
     p > code {
-      color: $git-black-color;
-      padding: 0.1em 0.1em 0.1em 0.1em;
-      border-radius: 0.3em;
+        color: $git-black-color;
+        //padding: 0.1em 0.1em 0.1em 0.1em;
+        padding: 0.2em 0.4em;
+        border-radius: 0.3em;
+        font-size: 0.9em;
+        line-height: 1.4;
+        vertical-align: baseline;
+        position: relative;
+        top: 0.1em;
     }
+
+    pre code {
+        font-size: 19px;
+        padding: 1em;
+        display: block;
+        border-radius: 5px;
+        background: #f7f7f7;
+    }
+
     ul, ol {
         padding: $base-spacing/5 $base-spacing;
     }
+
     ul {
         list-style-type: circle;
     }
+
     ol {
         list-style-type: decimal;
     }
+
     li {
-      font-size: 19px;
-      font-weight: lighter;
-      margin: 0.8em 0em 0.8em 0.5em;
+        font-size: 19px;
+        font-weight: normal;
+        margin: 0.8em 0em 0.8em 0.5em;
     }
+
     li p {
         font-size: 19px;
     }
-
 }

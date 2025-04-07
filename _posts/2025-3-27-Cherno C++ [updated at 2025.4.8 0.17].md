@@ -119,7 +119,7 @@ Visual Studio中 对于当前项目 选择 属性—C/C++—预处理器—预�
 
 2. 也可以把这个函数前面加上inline 意思是将函数调用替换为函数体 也就是比如 定义了函数体 `std::cout << message << std::endl;` 函数名为 `inline void Log(const char* message)` 这样实际上调用 `Log("Initialized Log");` 就等于是替换成了`std::cout << "Initialized Log" << std::endl;` 而并不复制函数到达cpp文件里 只要函数体
 
-3. **（最佳）把这个Log函数 不再写在Log.h里 而是写在Log.cpp里 Log.cpp被称为翻译单元 然后在Log.h里只保留Log函数的声明 `void Log(const char* message);` 不用static 也不用inline 这样链接之后 其他cpp文件仍然可以调用Log函数 但并不会重复 就不会链接错误**
+3. **（最佳）**把这个Log函数 不再写在Log.h里 而是写在Log.cpp里 Log.cpp被称为翻译单元 然后在Log.h里只保留Log函数的声明 `void Log(const char* message);` 不用static 也不用inline 这样链接之后 其他cpp文件仍然可以调用Log函数 但并不会重复 就不会链接错误
 
 ### 变量
 
@@ -406,7 +406,6 @@ std::cin.get();
 4. 优化与效率
    直接比较eax是否为1（单条cmp指令）比检查非0（需两次操作 测试是否为0 然后取反）更高效 编译器在合法代码前提下选择最优路径
 
-
 当然我们知道debug模式下是不会做任何优化的 实际上仅就5和6比较那里 完全可以做常数折叠 编译器自己就能做到 不需要在程序运行的时候再做比较 
 
 [开O2优化](#mypoint_5)之后 发现debug模式下右键已经不能反汇编了 只能[.asm输出](#mypoint_1) 仍然是询问了DeepSeek
@@ -420,18 +419,16 @@ std::cin.get();
 在开启O2优化后 编译器通过以下关键优化步骤彻底移除了条件判断和Log调用：
 
 1. 常量传播 (Constant Propagation)
-   - `int x = 6`被识别为编译期常量
-   - 所有使用`x`的地方直接替换为6
-
+   1. `int x = 6`被识别为编译期常量
+   2. 所有使用`x`的地方直接替换为6
 2. 死代码消除 (Dead Code Elimination)
-   - 由于`x == 5`被替换为`6 == 5`，编译器直接判定结果为`false`
-   - 整个if代码块被识别为不可达代码，包括：
-     * `bool comparisonResult`的初始化
-     * `if (comparisonResult == true)`的条件判断
-     * `Log("Hello, World!")`的调用
-
+   1. 由于`x == 5`被替换为`6 == 5`，编译器直接判定结果为`false`
+   2. 整个if代码块被识别为不可达代码，包括：
+      1. `bool comparisonResult`的初始化
+      2. `if (comparisonResult == true)`的条件判断
+      3. `Log("Hello, World!")`的调用
 3. 函数调用优化
-   - 未被调用的`Log`函数被完全移除（假设没有其他调用点）
+   未被调用的`Log`函数被完全移除（假设没有其他调用点）
 
 优化后的等效C++代码：
 ```cpp

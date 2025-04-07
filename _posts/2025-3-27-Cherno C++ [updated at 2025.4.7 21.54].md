@@ -406,19 +406,6 @@ std::cin.get();
 4. 优化与效率
    直接比较eax是否为1（单条cmp指令）比检查非0（需两次操作 测试是否为0 然后取反）更高效 编译器在合法代码前提下选择最优路径
 
-
-```c++
-		Log("Hello, World!");
-00007FF68B392442  lea         rcx,[string "Hello, World!" (07FF68B39AC28h)]  
-00007FF68B392449  call        Log (07FF68B391361h)  
-00007FF68B39244E  nop  
-	
-	std::cin.get();
-00007FF68B39244F  mov         rcx,qword ptr [__imp_std::cin (07FF68B3A1190h)]  
-00007FF68B392456  call        qword ptr [__imp_std::basic_istream<char,std::char_traits<char> >::get (07FF68B3A1150h)]  
-00007FF68B39245C  nop  
-```
-
 当然我们知道debug模式下是不会做任何优化的 实际上仅就5和6比较那里 完全可以做常数折叠 编译器自己就能做到 不需要在程序运行的时候再做比较 
 
 [开O2优化](#mypoint_5)之后 发现debug模式下右键已经不能反汇编了 只能[.asm输出](#mypoint_1) 仍然是询问了DeepSeek

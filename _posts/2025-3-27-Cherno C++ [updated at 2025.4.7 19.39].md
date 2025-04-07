@@ -79,11 +79,11 @@ Visual Studio中 对于当前项目 选择 属性—C/C++—预处理器—预�
 
  .obj 文件里全都是二进制 也就是机器代码
 
-属性—C/C++—输出文件—汇编程序输出 选择/FA 再build 那么就可以得到一个 .asm 文件 这个就是汇编语言 不再是机器代码了 而是汇编语言 这是CPU将要执行的实际指令 可以看到函数名字前面有一堆看似乱码的东西 这是函数的签名 可以唯一地定义你的函数 如果我们有多个obj 函数也被定义在多个obj中 链接的工作就是把所有的函数链接在一起
+<span id="mypoint_1"></span>属性—C/C++—输出文件—汇编程序输出 原本这里应该是无列表 选择仅有程序集的列表/FA 再build 那么就可以得到一个 .asm 文件（[另一种查看汇编的方案](#mypoint_2)） 这个就是汇编语言 不再是机器代码了 而是汇编语言 这是CPU将要执行的实际指令 可以看到函数名字前面有一堆看似乱码的东西 这是函数的签名 可以唯一地定义你的函数 如果我们有多个obj 函数也被定义在多个obj中 链接的工作就是把所有的函数链接在一起
 
 我们也可以从汇编文件中看到 变量设置得很多的话 实际上是影响效率 比如你可以直接返回 a+b 而不是再设置一个变量 c=a+b 再返回 c 这样的话会多出来很多针对于变量的 mov 指令
 
-debug模式下也不会给你做优化 在属性—C/C++—优化—优化 选择最大优化/O2 同时上方配置那里从 所有配置 改成 Debug 它会报错 告诉你O2和RTC不兼容 现在我们要继续去 属性—C/C++—代码生成—基本运行时检查 选择默认值 就不会再执行运行时检查 再看 .asm 汇编文件 就会发现 文件变得小多了 比如减少了一些针对变量的 mov 指令
+<span id="mypoint_5"></span>debug模式下也不会给你做优化 在属性—C/C++—优化—优化 原本应该是已禁用/Od 选择最大优化/O2 同时上方配置那里从 所有配置 改成 Debug 然后再build 它就会报错 告诉你O2和RTC不兼容 现在我们要继续去 属性—C/C++—代码生成—基本运行时检查 原本应该是两者(/RTC1，等同于 /RTCsu) (/RTC1) 在这里选择默认值 就不会再执行运行时检查 再看 .asm 汇编文件 就会发现 文件变得小多了 比如减少了一些针对变量的 mov 指令
 
 如果我们只写 return 5\*2 不开启优化 会发现 汇编文件里 只有 `mov eax, 10` 而没有5\*2 这叫常数折叠 只要是常数就都直接算 没有指令
 
@@ -115,11 +115,11 @@ debug模式下也不会给你做优化 在属性—C/C++—优化—优化 选�
 
 解决方案：
 
-(1) 可以把这个函数定义为static `static void Log(const char* message)`这样这个函数被复制过去之后 就只在cpp文件内部生效 内部函数对于其他obj文件不可见 不会参与链接
+1. 可以把这个函数定义为static `static void Log(const char* message)`这样这个函数被复制过去之后 就只在cpp文件内部生效 内部函数对于其他obj文件不可见 不会参与链接
 
-(2) 也可以把这个函数前面加上inline 意思是将函数调用替换为函数体 也就是比如 定义了函数体 `std::cout << message << std::endl;` 函数名为 `inline void Log(const char* message)` 这样实际上调用 `Log("Initialized Log");` 就等于是替换成了`std::cout << "Initialized Log" << std::endl;` 而并不复制函数到达cpp文件里 只要函数体
+2. 也可以把这个函数前面加上inline 意思是将函数调用替换为函数体 也就是比如 定义了函数体 `std::cout << message << std::endl;` 函数名为 `inline void Log(const char* message)` 这样实际上调用 `Log("Initialized Log");` 就等于是替换成了`std::cout << "Initialized Log" << std::endl;` 而并不复制函数到达cpp文件里 只要函数体
 
-**(3/最佳) 把这个Log函数 不再写在Log.h里 而是写在Log.cpp里 Log.cpp被称为翻译单元 然后在Log.h里只保留Log函数的声明 `void Log(const char* message);` 不用static 也不用inline 这样链接之后 其他cpp文件仍然可以调用Log函数 但并不会重复 就不会链接错误**
+3. **（最佳）把这个Log函数 不再写在Log.h里 而是写在Log.cpp里 Log.cpp被称为翻译单元 然后在Log.h里只保留Log函数的声明 `void Log(const char* message);` 不用static 也不用inline 这样链接之后 其他cpp文件仍然可以调用Log函数 但并不会重复 就不会链接错误**
 
 ### 变量
 
@@ -131,7 +131,9 @@ char可以表示数字 也可以表示字符 这不是说其他整数类型不�
 
 float 4个字节 double 8个字节 `float virable=5.5` 你以为你定义了一个float 实际上你定义了一个double `float virable=5.5f` 这才是真的float 或者`float virable=5.5F` 
 
-bool true或者false 但是如果`bool virable=true` cout之后会输出数字1 因为实际上计算机不知道什么true还是flase 它只知道0和1 **0表示flase 任何不是0的数字都是1** bool是1个字节 但为什么不是1个bit 它确实是只用1bit 但当我们处理寻址内存时 我们没有办法寻址只有1个bit位的内容 我们只能访问字节 但你也可以在1byte内存里存储8个bool数 但仍然是分配1个字节的内存 
+<span id="mypoint_3"></span>bool true或者false 但是如果`bool virable=true` cout之后会输出数字1 因为实际上计算机不知道什么true还是flase 它只知道0和1 **0表示flase 任何不是0的数字都是1** 计算机只会处理数字 bool是1个字节 我们有巨大的1byte内存地址空间用来放1个bool值 我们不一定要确定是哪个bit被设置为1 只要这个byte里有东西 不为0 那它就是true 所以true有可能是1 但并不强迫我们设置为1 [关于在C++中 bool 非0为true 0为false的讨论](#mypoint_4)
+
+但为什么bool不是1个bit 它确实是只用1bit 但当我们处理寻址内存时 我们没有办法寻址只有1个bit位的内容 我们只能访问字节 但你也可以在1byte内存里存储8个bool数 但仍然是分配1个字节的内存
 
 可以用这些基本数据类型 写我们自己的自定义数据类型
 
@@ -260,7 +262,9 @@ int main() {
 
 再按step out 就打印出了Hello world! 我们现在将要执行 `std::cin.get();` 即使我们在控制台按enter 也什么都不会发生 如果我们按工具栏的继续按钮 整个调试就停止了 
 
-一个程序 就是由内存构成的 内存是最重要的 
+一个程序 就是由内存构成的 内存是最重要的
+
+[利用汇编debug](#mypoint_2)
 
 ### Visual Studio设置
 
@@ -329,3 +333,132 @@ x86是32位 win32
 然后点确认 我们在project_test项目那里右键—清理 删除许多旧文件 这样删除不彻底 还是手动去文件资源管理器把有debug和x64的文件夹都删除 重新build 现在exe文件就在 `C:\coding\alpha\C++\test\Project_test\bin\x64\Debug` 这个文件夹里同时还有`Project_test.pdb`和`Project_test.ilk` 许多中间文件都在`C:\coding\alpha\C++\test\Project_test\bin\intermediates\x64\Debug`
 
 在project_test项目那里右键—属性 输出目录那里 在编辑的时候 最右侧有一个选项符号 展开 点击 <编辑...> 然后点击 宏>> 我们就可以看到很多 \$( ) 这种形式的东西 在上方空白方框里 搜索SolutionDir 可以看到在本例中的目录为 `C:\coding\alpha\C++\test\Project_test\` 在最后它是自带 \ 的 所以我们在设置输出目录和中间目录时 \$(SolutionDir) 与 bin 中间 不用写 \
+
+2025/4/7
+
+### if 语句
+
+如果条件为真 我们跳到源代码的某一部分 如果值为假 我们跳到我们源代码的另一部分 我们这里说是源代码 但在实际运行的应用程序中是指机器指令 当我们开始一个应用程序时 整个应用程序及其所有模块加载到内存中 所有这些指令组成了我们的程序 现在都存储在内存中 当我们有了条件语句所产生的分支 我们是在告诉电脑跳到我们的这部分内存 在那里开始执行我们的指令 if语句和分支通常有比较大的开销 如果效率高做优化就避免写if语句
+
+```c++
+int x = 6;
+bool comparisonResult = (x == 5);
+if (comparisonResult == true)
+	Log("Hello, World!");
+
+std::cin.get();
+```
+
+`bool comparisonResult = (x == 5);` 这里的`==`是在C++标准库中被重载了 相当于写一个函数 接受两个整数参数 然后检查这两个整数的内存 实际上是在获取它们4个字节的内存 比较每个字节 为了让这两个整数是相等的 内存的每一位都必须相同 看它们是否相等 相等就返回true 
+
+`if (comparisonResult == true)`和`if (comparisonResult)` 是同一个意思
+
+<span id="mypoint_2"></span>在debug中 右键某一行代码—转到反汇编 就可以查看它的汇编指令 不再需要在输出文件里修改成[.asm文件输出](#mypoint_1) 源码无法找到错误原因时 可以求助于调试CPU指令
+
+```c++
+	int x = 6;
+00007FF68B39240C  mov         dword ptr [x],6  
+```
+
+将值6 move到这个寄存器 就是变量x被设置为6
+
+```c++
+	bool comparisonResult = (x == 5);
+00007FF68B392413  cmp         dword ptr [x],5  
+00007FF68B392417  jne         main+35h (07FF68B392425h)  
+00007FF68B392419  mov         dword ptr [rbp+0F4h],1  
+00007FF68B392423  jmp         main+3Fh (07FF68B39242Fh)  
+00007FF68B392425  mov         dword ptr [rbp+0F4h],0  
+00007FF68B39242F  movzx       eax,byte ptr [rbp+0F4h]  
+00007FF68B392436  mov         byte ptr [comparisonResult],al  
+```
+
+把5加载到同一个寄存器 然后jne（就是jump not equal  而je就是jump equal jne和je都不是普通的跳转语句jmp 它是条件跳转语句） 现在就是比较5和6这两个值 如果不相等 not euqal 就跳转到内存地址07FF68B392425h 实际上就是`00007FF68B392425  mov         dword ptr [rbp+0F4h],0 `这一行 现在我们已经知道5和6不相等 在debug时jump over 就会发现黄色箭头确实会到这一行 所以这一行就是将0移动到这个寄存器 这个寄存器是rbp这个实际的寄存器（rbp/ebp 基址寄存器 用于地址指定） 加上一定的偏移量 实际上我们知道它是把0移动到了bool值那里 bool值就被设置成了false 最后两行那个movzx mov 我们就不关心了
+
+```c++
+	if (comparisonResult == true)
+00007FF68B392439  movzx       eax,byte ptr [comparisonResult]  
+00007FF68B39243D  cmp         eax,1  
+00007FF68B392440  jne         main+5Fh (07FF68B39244Fh)  
+```
+
+将某些值加载到eax寄存器（通用寄存器）中 仍然是cmp然后jne comparisonResult不为true 不为1 not equal 就跳转07FF68B39244Fh 是`std::cin.get();`那一行 跳过了Log函数 如果这里equal了就是直接继续Log函数
+
+------
+
+<span id="mypoint_4"></span>但实际上我们[复习bool](#mypoint_3)又知道 true不一定为1 只要非0就是true 在这里为什么是eax里的值一定要与1比较呢？ 以下为DeepSeek回复
+
+1. 类型提升规则
+   当bool参与比较或运算时 会隐式转换为int类型 true提升为1，false提升为0 则`comparisonResult == true`等价于`(int)comparisonResult == 1` 编译器直接生成与1比较的指令
+
+2. 编译器对bool的合法性假设
+   编译器假设程序遵循C++标准 所有bool变量只能存储0或1 若通过非法手段（如内存覆写）使bool值为其他非0数 属于未定义行为 编译器无需处理
+
+3. 逻辑操作的结果规范化
+   逻辑运算符（如`==`、`&&`）生成的bool值会被规范化为0或1
+
+   ```c++
+   int a = 5, b = 3;
+   bool c = (a == b); // c = 0（false）
+   bool d = (a || b); // d = 1（true）
+   ```
+   因此 直接比较1是安全的
+
+4. 优化与效率
+   直接比较eax是否为1（单条cmp指令）比检查非0（需两次操作 测试是否为0 然后取反）更高效 编译器在合法代码前提下选择最优路径
+
+------
+
+
+```c++
+		Log("Hello, World!");
+00007FF68B392442  lea         rcx,[string "Hello, World!" (07FF68B39AC28h)]  
+00007FF68B392449  call        Log (07FF68B391361h)  
+00007FF68B39244E  nop  
+	
+	std::cin.get();
+00007FF68B39244F  mov         rcx,qword ptr [__imp_std::cin (07FF68B3A1190h)]  
+00007FF68B392456  call        qword ptr [__imp_std::basic_istream<char,std::char_traits<char> >::get (07FF68B3A1150h)]  
+00007FF68B39245C  nop  
+```
+
+当然我们知道debug模式下是不会做任何优化的 实际上仅就5和6比较那里 完全可以做常数折叠 编译器自己就能做到 不需要在程序运行的时候再做比较 
+
+------
+
+[开O2优化](#mypoint_5)之后 发现debug模式下右键已经不能反汇编了 只能[.asm输出](#mypoint_1) 仍然是询问了DeepSeek
+
+主函数中有一个条件判断 当x等于5时调用Log函数 但用户将x初始化为6 所以比较结果应该是false 不会执行Log调用 在未优化的反汇编中 确实进行了比较和跳转 而优化后的汇编代码中 这些步骤被省略了 直接调用了std::cin.get()
+优化后的.asm文件中 main函数部分非常简短 只调用了__CheckForDebuggerJustMyCode 然后调用了cin.get() 没有条件判断和Log相关的代码 这说明编译器在优化过程中识别到条件永远不会满足 因此完全移除了相关的代码
+未优化的反汇编代码中 可以看到x被赋值为6 然后进行比较 设置comparisonResult为false 跳过了Log调用 而开启O2后 编译器进行了常量传播和死代码消除 因为x是常量6 比较x==5的结果必然是false 所以整个if语句块都会被移除 包括Log调用 因此优化后的代码不再包含这些无效的代码路径 直接执行cin.get()并返回
+
+在开启O2优化后 编译器通过以下关键优化步骤彻底移除了条件判断和Log调用：
+
+1. **常量传播 (Constant Propagation)**
+   - `int x = 6`被识别为编译期常量
+   - 所有使用`x`的地方直接替换为6
+
+2. **死代码消除 (Dead Code Elimination)**
+   - 由于`x == 5`被替换为`6 == 5`，编译器直接判定结果为`false`
+   - 整个if代码块被识别为不可达代码，包括：
+     * `bool comparisonResult`的初始化
+     * `if (comparisonResult == true)`的条件判断
+     * `Log("Hello, World!")`的调用
+
+3. **函数调用优化**
+   - 未被调用的`Log`函数被完全移除（假设没有其他调用点）
+
+优化后的等效C++代码：
+```cpp
+#include <iostream>
+
+int main() {
+    std::cin.get();  // 唯一保留的有效代码
+    return 0;
+}
+```
+
+这种优化属于编译器的最基础优化级别 现代编译器（包括MSVC）在O1/O2级别都会自动进行这类常量传播和死代码消除
+
+------
+

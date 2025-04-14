@@ -1,7 +1,5 @@
 我们有很多尚未解决的问题 在那些文本里我使用了 *暂时* 这个词语 请使用网页搜索功能
 
-[TOC]
-
 2025/3/27
 
 只有main函数可以没有返回值 默认返回0 其他函数都要有返回值 或者void
@@ -125,7 +123,7 @@ Visual Studio中 对于当前项目 选择 属性—C/C++—预处理器—预�
 
 1. 预处理 【.cpp .h .hpp 到 .i】
    1. #include 将头文件复制到源文件
-   2. 处理宏定义#define 和 条件编译#ifdef #endif
+   2. 处理宏定义#define 和 条件编译#ifdef、#endif
    3. 删除注释 添加行号和文件名标识（用于调试）
 
 2. 编译 【.i 到 .s】
@@ -288,6 +286,23 @@ int main() {
 [利用汇编debug](#mypoint_2)
 
 # Visual Studio设置
+
+Visual Studio默认安装的是MSVC编译器（微软的C++编译器） 而非g++
+MSYS2是一个在Windows上提供类Unix开发环境的工具集 包含：
+	包管理器pacman 方便安装开发工具 如 g++、make
+	MinGW-w64工具链 提供 Windows原生可执行的gcc编译器 生成 .exe
+	Unix 工具 如bash、git、ssh
+	常用于需要gcc工具链的项目 如跨平台开源库编译
+	MSYS2 不是 Python 虚拟环境（比如anaconda3） 而是一个开发工具链环境
+如果你单独安装过MinGW或通过MSYS2安装，路径可能是：
+C:\msys64\mingw64\bin\g++.exe
+C:\MinGW\bin\g++.exe
+
+| **场景**             | **推荐工具链**        | **优点**                       |
+| :------------------- | :-------------------- | :----------------------------- |
+| Windows 原生开发     | Visual Studio MSVC    | 深度集成 IDE，调试方便         |
+| 跨平台项目（需 GCC） | MSYS2 + MinGW         | 兼容 Linux 代码，方便移植      |
+| 快速管理第三方库     | vcpkg + Visual Studio | 自动处理依赖，无需手动配置路径 |
 
 创建项目的时候 不要勾选将解决方案和项目放在同一个目录中 创建之后我们得到
 

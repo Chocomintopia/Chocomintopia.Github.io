@@ -1,3 +1,19 @@
+# 目录
+- [编译](#编译)
+- [链接](#链接)
+- [C++ 源代码编译生成可执行文件过程](#C++ 源代码编译生成可执行文件过程)
+- [变量](#变量)
+- [函数](#函数)
+- [头文件](#头文件)
+- [Debug](#Debug)
+- [Visual Studio设置](#Visual Studio设置)
+- [if 语句](#if 语句)
+- [循环](#循环)
+- [控制流语句](#控制流语句)
+- [指针](#指针)
+- [引用](#引用)
+- [本文目录使用python脚本自动生成](#本文目录使用python脚本自动生成)
+
 我们有很多尚未解决的问题 在那些文本里我使用了 *暂时* 这个词语 请使用网页搜索功能
 
 2025/3/27
@@ -288,12 +304,14 @@ int main() {
 # Visual Studio设置
 
 Visual Studio默认安装的是MSVC编译器（微软的C++编译器） 而非g++
+
 MSYS2是一个在Windows上提供类Unix开发环境的工具集 包含：
-	包管理器pacman 方便安装开发工具 如 g++、make
-	MinGW-w64工具链 提供 Windows原生可执行的gcc编译器 生成 .exe
-	Unix 工具 如bash、git、ssh
-	常用于需要gcc工具链的项目 如跨平台开源库编译
-	MSYS2 不是 Python 虚拟环境（比如anaconda3） 而是一个开发工具链环境
+包管理器pacman 方便安装开发工具 如 g++、make
+MinGW-w64工具链 提供 Windows原生可执行的gcc编译器 生成 .exe
+Unix 工具 如bash、git、ssh
+常用于需要gcc工具链的项目 如跨平台开源库编译
+MSYS2 不是 Python 虚拟环境（比如anaconda3） 而是一个开发工具链环境
+
 如果你单独安装过MinGW或通过MSYS2安装，路径可能是：
 C:\msys64\mingw64\bin\g++.exe
 C:\MinGW\bin\g++.exe
@@ -303,6 +321,8 @@ C:\MinGW\bin\g++.exe
 | Windows 原生开发     | Visual Studio MSVC    | 深度集成 IDE，调试方便         |
 | 跨平台项目（需 GCC） | MSYS2 + MinGW         | 兼容 Linux 代码，方便移植      |
 | 快速管理第三方库     | vcpkg + Visual Studio | 自动处理依赖，无需手动配置路径 |
+
+
 
 创建项目的时候 不要勾选将解决方案和项目放在同一个目录中 创建之后我们得到
 
@@ -640,7 +660,7 @@ int main(){
 
 **指针是一个数字 一个存储内存地址的数字** 内存在计算机里 就像一条线性的街 街上的每座房子都会有地址 这个地址就是1个字节的数据 显然我们需要一种方法来寻址 指针就是这些地址 这些地址告诉我们房子在哪里
 
-**一个指针只是一个地址 它是一个保存内存地址的整数** 忘记所有的类型 类型只是一种为了更便利而产生的 虚构 所有类型的指针都只是保存内存地址的整数 
+**一个指针只是一个地址 它是一个保存内存地址的整数** 忘记所有的类型 类型只是一种为了更便利而产生的虚构 所有类型的指针都只是保存内存地址的整数 
 
 ```c++
 void* ptr = 0;
@@ -752,3 +772,126 @@ ptr=&buffer 它的值也是buffer这个指针的地址
 
 0x000002ac05d55070 后面的`""`引号表示buffer这个指针指向的动态分配内存当前存储的是一个空字符串 因为我们前面使用的是`memset(buffer, 0, 8);` 都初始化为0了 如果都初始化为'a' 就应该是`“aaaaaaaa  ”` 8个a 后面还有空格 空格实际上是未定义的内存内容 而不是实际的空格字符 因为buffer 未添加字符串终止符 `memset(buffer, 'a', 8);` 将 buffer 的 8 个字节填充为 'a' 但没有添加 \0（字符串终止符） 因此 buffer 被解释为一个未终止的字符串 读取时会超出分配的8字节范围 访问到未初始化的内存 未初始化的内存是动态分配的内存 可能包含随机值 例如空格或其他字符 这些值在输出时可能被解释为不可见字符或空格
 
+# 引用
+
+引用只是指针的语法糖 引用必须要引用已经存在的变量 引用本身并不是新的变量 不占用内存 没有真正的存储空间
+
+
+
+
+
+# 本文目录使用python脚本自动生成
+
+```python
+# python "D:/coding/markdown+latex/toc.py" "D:/coding/C++/note/Cherno C++.md"
+import re
+import sys
+
+def generate_toc(md_file):
+    try:
+        with open(md_file, 'r', encoding='utf-8') as f:
+            lines = f.readlines()
+        
+        toc = []
+        in_code_block = False  # 标记当前是否在代码块内
+
+        for line in lines:
+            # line.strip() 去掉行首和行尾的空白字符
+            stripped_line = line.strip()
+
+            # 检测代码块的开始/结束标记
+            if stripped_line.startswith('```'):
+                in_code_block = not in_code_block # 标志为反转 如果当前行是代码块的开始标记 则设置为 True 如果是结束标记 则设置为 False
+                continue # 如果当前行是代码块的开始或结束标记 跳过处理
+
+            # 如果当前在代码块内 跳过所有处理
+            if in_code_block:
+                continue
+
+            # 使用正则表达式严格匹配 Markdown 标题语法（排除代码块内的内容）
+            # ^#{1,6} 匹配以 1 到 6 个 # 开头的行（表示 Markdown 的标题层级）。
+            # \s 要求 # 后面必须有一个空格
+            # [^\s] 确保标题内容不是空白
+            if re.match(r'^#{1,6}\s[^\s]', stripped_line):
+                # 统计行中 # 的数量 表示标题的级别（1-6）
+                level = stripped_line.count('#')
+                # 移除行中所有的# 并去掉标题内容两端的空白字符 以提取标题内容
+                title = stripped_line.replace('#', '').strip()
+                # 根据标题层级生成缩进 每一级标题增加两个空格的缩进 一级标题无缩进
+                indent = '  ' * (level - 1)
+                # 生成符合 Markdown 语法的目录项
+                # indent：缩进
+                # [{title}]：显示标题内容
+                # (#{title})：链接到对应的标题锚点
+                toc.append(f"{indent}- [{title}](#{title})")
+        
+        return '\n'.join(['# 目录'] + toc)
+    
+    except FileNotFoundError:
+        return f"错误：文件 {md_file} 不存在！"
+    except Exception as e:
+        return f"发生错误：{str(e)}"
+
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        print("通过命令行运行：python toc.py 你的文件.md")
+    else:
+        md_file = sys.argv[1]
+        toc_content = generate_toc(md_file)
+        print("生成的目录：\n")
+        print(toc_content)
+        
+        # 自动将目录插入到原文件中
+        choice = input("\n是否要将目录插入到文件开头？(y/n): ").lower()
+        if choice == 'y':
+            with open(md_file, 'r+', encoding='utf-8') as f:
+                content = f.read()
+                f.seek(0)
+                f.write(f"{toc_content}\n\n{content}")
+            print("目录已插入文件开头！")
+```
+
+在命令行中处理带有空格的文件路径的方法：
+
+1. 引号包裹路径（通用方法）
+   在路径两侧添加英文双引号 告诉命令行将整个路径视为一个整体
+   `cd "C:\Program Files\My Project"`
+
+2. 转义空格（替代方法）
+   在空格前添加转义符（不同系统转义符不同） 直接标记空格为路径的一部分
+
+   - Windows(CMD/PowerShell) 使用 ^ 转义
+     `cd C:\Program^ Files\My^ Project`
+
+   - Linux/macOS(Bash) 使用 \ 转义
+     `cd /home/user/My\ Project/Docs`
+
+3. 特殊场景处理
+   1. 场景1：路径作为命令参数
+      即使路径作为参数传递给其他程序 也需引号包裹
+      示例：用 Python 运行位于带空格路径的脚本
+      `python "C:\My Scripts\hello world.py"`
+      
+   2. 场景2：路径中包含其他特殊字符
+      若路径含 &、%、! 等字符 需额外转义
+      - Windows(CMD) 路径含& 需用双引号包裹并转义&
+        `echo "This is a test" > "C:\My Folder\File & Data.txt"`
+      
+      - Linux/macOS(Bash) 路径含 ! 用单引号包裹（禁止变量扩展）
+        `cat '/home/user/Important! File.txt'`
+      
+   3. 场景3：批处理脚本或环境变量
+      在脚本中引用带空格的路径时 始终用引号包裹变量
+      Windows 批处理脚本示例
+      `set MY_PATH="C:\Program Files\My Project"`
+      `cd %MY_PATH%`
+
+4. 自动化工具中的路径处理
+   在编程或脚本中 建议始终使用编程语言提供的**路径处理函数**（如 Python 的 `os.path`） 避免手动拼接路径
+
+    ```python
+    import os
+   
+    path = os.path.join("C:", "Program Files", "My Project")  # 自动处理路径分隔符和空格
+    print(path)  # 输出：C:\Program Files\My Project
+    ```

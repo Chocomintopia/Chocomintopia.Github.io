@@ -1,19 +1,19 @@
-# 目录
+### 目录
 - [编译](#编译)
 - [链接](#链接)
-- [C++ 源代码编译生成可执行文件过程](#C++ 源代码编译生成可执行文件过程)
+- [C++ 源代码编译生成可执行文件过程](#c-源代码编译生成可执行文件过程)
 - [变量](#变量)
 - [函数](#函数)
 - [头文件](#头文件)
-- [Debug](#Debug)
-- [Visual Studio设置](#Visual Studio设置)
-- [if 语句](#if 语句)
+- [Debug](#debug)
+- [Visual Studio设置](#visual-studio设置)
+- [if 语句](#if-语句)
 - [循环](#循环)
 - [控制流语句](#控制流语句)
 - [指针](#指针)
 - [引用](#引用)
 - [本文目录使用python脚本自动生成](#本文目录使用python脚本自动生成)
-
+---
 我们有很多尚未解决的问题 在那些文本里我使用了 *暂时* 这个词语 请使用网页搜索功能
 
 2025/3/27
@@ -321,8 +321,6 @@ C:\MinGW\bin\g++.exe
 | Windows 原生开发     | Visual Studio MSVC    | 深度集成 IDE，调试方便         |
 | 跨平台项目（需 GCC） | MSYS2 + MinGW         | 兼容 Linux 代码，方便移植      |
 | 快速管理第三方库     | vcpkg + Visual Studio | 自动处理依赖，无需手动配置路径 |
-
-
 
 创建项目的时候 不要勾选将解决方案和项目放在同一个目录中 创建之后我们得到
 
@@ -783,72 +781,131 @@ ptr=&buffer 它的值也是buffer这个指针的地址
 # 本文目录使用python脚本自动生成
 
 ```python
-# python "D:/coding/markdown+latex/toc.py" "D:/coding/C++/note/Cherno C++.md"
 import re
 import sys
 
-def generate_toc(md_file):
-    try:
-        with open(md_file, 'r', encoding='utf-8') as f:
-            lines = f.readlines()
-        
-        toc = []
-        in_code_block = False  # 标记当前是否在代码块内
+def generate_toc(content):
+    """生成目录内容，不直接修改文件"""
+    # 将文件内容按行分割为列表
+    lines = content.split('\n')
+    toc = []  # 存储生成的目录项
+    in_code_block = False  # 标记当前是否在代码块内
 
-        for line in lines:
-            # line.strip() 去掉行首和行尾的空白字符
-            stripped_line = line.strip()
+    for line in lines:
+        # line.strip()：去掉行首和行尾的空白字符（包括换行符、空格、制表符等）
+        stripped_line = line.strip()
 
-            # 检测代码块的开始/结束标记
-            if stripped_line.startswith('```'):
-                in_code_block = not in_code_block # 标志为反转 如果当前行是代码块的开始标记 则设置为 True 如果是结束标记 则设置为 False
-                continue # 如果当前行是代码块的开始或结束标记 跳过处理
+        # 检测代码块的开始/结束标记（```）
+        if stripped_line.startswith('```'):
+            # 反转代码块状态：遇到代码块开始标记设为True，结束标记设为False
+            in_code_block = not in_code_block
+            continue  # 跳过代码块标记行本身
 
-            # 如果当前在代码块内 跳过所有处理
-            if in_code_block:
+        # 如果当前在代码块内，跳过所有处理
+        if in_code_block:
+            continue
+
+        # 使用正则表达式移除行内代码（反引号包裹的内容）
+        # `[^`]*`：匹配反引号开始，中间包含非反引号字符，直到反引号结束
+        line_clean = re.sub(r'`[^`]*`', '', line)
+
+        # 使用正则表达式严格匹配 Markdown 标题语法
+        # ^#{1,6}：匹配以1到6个#开头的行
+        # \s：要求#后面必须有一个空格（排除C++宏定义）
+        # (?!目录)：排除中文"目录"关键词
+        # [^\s]：确保标题内容不是空白字符
+        if re.match(r'^#{1,6}\s(?!目录)[^\s]', line_clean.strip()):
+            # 统计标题层级：通过计算#的数量确定（1-6）
+            level = line_clean.count('#')
+            # 提取标题文本：移除开头的#并去除两端空白
+            title = line_clean.replace('#', '', level).strip()
+
+            # 跳过所有形式的目录标题（中文/英文）
+            if title.lower() in ['目录', 'contents']:
                 continue
 
-            # 使用正则表达式严格匹配 Markdown 标题语法（排除代码块内的内容）
-            # ^#{1,6} 匹配以 1 到 6 个 # 开头的行（表示 Markdown 的标题层级）。
-            # \s 要求 # 后面必须有一个空格
-            # [^\s] 确保标题内容不是空白
-            if re.match(r'^#{1,6}\s[^\s]', stripped_line):
-                # 统计行中 # 的数量 表示标题的级别（1-6）
-                level = stripped_line.count('#')
-                # 移除行中所有的# 并去掉标题内容两端的空白字符 以提取标题内容
-                title = stripped_line.replace('#', '').strip()
-                # 根据标题层级生成缩进 每一级标题增加两个空格的缩进 一级标题无缩进
-                indent = '  ' * (level - 1)
-                # 生成符合 Markdown 语法的目录项
-                # indent：缩进
-                # [{title}]：显示标题内容
-                # (#{title})：链接到对应的标题锚点
-                toc.append(f"{indent}- [{title}](#{title})")
-        
-        return '\n'.join(['# 目录'] + toc)
+            # 根据标题层级生成缩进：每级缩进2个空格
+            indent = '  ' * (level - 1)
+            
+            # 生成锚点链接：
+            # 1. 使用正则表达式过滤特殊字符：[^\w\u4e00-\u9fff\- ] 
+            #    - \w：保留字母、数字、下划线
+            #    - \u4e00-\u9fff：保留中文字符
+            #    - \-：保留连字符
+            #    - 空格：保留用于后续转换
+            # 2. 转换为小写：.lower()
+            # 3. 空格转连字符：replace(' ', '-')
+            # 4. 处理连续连字符：replace('--', '-')
+            anchor = re.sub(r'[^\w\u4e00-\u9fff\- ]', '', title)
+            anchor = anchor.strip().lower().replace(' ', '-').replace('--', '-')
+            
+            # 生成目录项文本，格式示例：
+            #   - [标题内容](#锚点链接)
+            toc.append(f"{indent}- [{title}](#{anchor})")
     
-    except FileNotFoundError:
-        return f"错误：文件 {md_file} 不存在！"
-    except Exception as e:
-        return f"发生错误：{str(e)}"
+    # 组合最终目录内容：
+    # 1. 添加### 目录标题
+    # 2. 拼接所有目录项
+    # 3. 添加水平分割线\n---\n
+    return '### 目录\n' + '\n'.join(toc) + '\n---\n'
+
+def update_file_content(md_file, new_toc):
+    """执行文件更新操作"""
+    # 读取文件全部内容
+    with open(md_file, 'r', encoding='utf-8') as f:
+        content = f.read()
+    
+    # 正则表达式匹配旧目录结构：
+    # ^#{1,6}\s*目录：匹配任意层级的目录标题（如# 目录、##目录）
+    # [\s\S]*?：匹配任意字符（包括换行符），非贪婪模式
+    # ^---\n：匹配水平分割线
+    pattern = r'(^#{1,6}\s*目录\s*[\s\S]*?)^---\n'
+    # re.MULTILINE：使^匹配每行开头
+    updated_content = re.sub(pattern, new_toc, content, flags=re.MULTILINE)
+    
+    # 如果没有找到旧目录，直接在文件开头插入新目录
+    if updated_content == content:
+        updated_content = new_toc + content
+    
+    # 写入更新后的内容
+    with open(md_file, 'w', encoding='utf-8') as f:
+        f.write(updated_content)
 
 if __name__ == "__main__":
+    # 命令行参数验证
     if len(sys.argv) < 2:
-        print("通过命令行运行：python toc.py 你的文件.md")
-    else:
-        md_file = sys.argv[1]
-        toc_content = generate_toc(md_file)
-        print("生成的目录：\n")
-        print(toc_content)
+        print("请通过命令行运行：python toc.py 你的文件.md")
+        sys.exit(1)  # 非正常退出
+    
+    md_file = sys.argv[1]  # 获取输入文件路径
+    
+    try:
+        # 读取文件内容（使用utf-8编码保证中文兼容性）
+        with open(md_file, 'r', encoding='utf-8') as f:
+            content = f.read()
         
-        # 自动将目录插入到原文件中
-        choice = input("\n是否要将目录插入到文件开头？(y/n): ").lower()
+        # 生成新目录内容
+        new_toc = generate_toc(content)
+        
+        # 显示生成的目录（\n实现换行排版）
+        print("生成的目录：\n")
+        print(new_toc)
+
+        # 用户确认机制（.lower()统一处理大小写输入）
+        choice = input("\n是否要替换文件中的旧目录？(y/n): ").lower()
         if choice == 'y':
-            with open(md_file, 'r+', encoding='utf-8') as f:
-                content = f.read()
-                f.seek(0)
-                f.write(f"{toc_content}\n\n{content}")
-            print("目录已插入文件开头！")
+            update_file_content(md_file, new_toc)
+            print("目录已更新！")
+        else:
+            print("未修改文件")  # 用户取消操作
+    
+    # 异常处理（细化错误类型）
+    except FileNotFoundError:
+        print(f"错误：文件 {md_file} 不存在")
+    except PermissionError:
+        print(f"错误：没有文件写入权限")
+    except Exception as e:
+        print(f"发生未预期错误：{str(e)}")
 ```
 
 在命令行中处理带有空格的文件路径的方法：

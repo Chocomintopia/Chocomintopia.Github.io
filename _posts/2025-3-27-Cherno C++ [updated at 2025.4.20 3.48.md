@@ -12,9 +12,15 @@
 - [控制流语句](#控制流语句)
 - [指针](#指针)
 - [引用](#引用)
+- [类](#类)
+- [静态 Static](#静态-static)
+  - [类或结构体外部的static](#类或结构体外部的static)
+  - [类或结构体中的static](#类或结构体中的static)
+  - [局部static](#局部static)
 - [本文目录使用python脚本自动生成](#本文目录使用python脚本自动生成)
 
 ------
+
 
 我们有很多尚未解决的问题 在那些文本里我使用了 *暂时* 这个词语 请使用网页搜索功能
 
@@ -119,7 +125,7 @@ Visual Studio中 对于当前项目 选择 属性—C/C++—预处理器—预�
 
 “未解决的外部符号”报错 就是链接器找不到它需要的东西
 
-如果在函数前面加一个 static 就说明这个函数只在当前cpp文件里会被使用 其它cpp文件里都不会用到 那么它就不用参与链接 其他cpp文件就不使用
+<span id="mypoint_6"></span>如果在函数前面加一个 [static](#mypoint_7) 就说明这个函数只在当前cpp文件里会被使用 其它cpp文件里都不会用到 那么它就不用参与链接 其他cpp文件就不使用 
 
 参数不对 返回类型不对 函数名不对 都会发生链接错误
 
@@ -851,15 +857,420 @@ int* ref = &a;
 ref = &b;
 ```
 
+# 类
+
+2025/4/17
+
+**类并不会增添任何新的功能 可以用类搞定的事 不用类也一样搞得定 类只是语法糖**
+面向对象编程 类只是对数据和功能组合在一起的一种方法 **有数据和处理这些数据的函数** 可以更好地维护混乱的变量和函数 对其分组
+
+```c++
+class Player
+{
+    int x, y;
+    int speed;
+};
+```
+
+这里是创建一个新的**变量类型** 这个类的名字必须是唯一的 注意结尾有`;`
+
+```c++
+Player player;
+```
+
+于是我们创建了类型为Player的变量player
+player就叫作对象object或者实例instance 我们这里就是实例化了一个Player对象
+
+`Player.x = 5;` 这会报错 成员`Player::x`不可访问
+player不能访问在类Player中声明的私有成员
+
+这是因为在创建类时 可以指定类中内容的可见性 **默认情况下都是private** 意味着只有类中的函数才能访问这些变量 但我们希望在main函数里使用这些变量 所以要改成
+
+```c++
+class Player
+{
+public:
+    int x, y;
+    int speed;
+};
+```
+
+public意味着可以在类之外的任何地方访问这些变量 我们暂时不讨论可见性
+
+现在我们希望让player移动 可以写一个单独的函数
+
+```c++
+void Move(Player& player, int xa, int ya){
+    //xa ya是在x轴 y轴上Player移动的距离
+    player.x += xa * player.speed;
+    player.y += ya * player.speed;
+}
+```
+
+`Player&` 要修改Player对象 所以要用引用传递
+
+如果要调用这个函数 `Move(player, 1, -1);`
+
+但实际上类可以包含函数 我们可以把move函数移动到类中 **类内的函数被称为方法**
+
+```c++
+class Player {
+public:
+	int x, y;
+	int speed;
+
+	void Move(int xa, int ya) {
+		x += xa * speed;
+		y += ya * speed;
+	}
+};
+```
+
+不需要再用`Player& player`传入player对象 因为我们已经在Player对象中了 所有的x y speed 指的就是当前对象的变量
+
+调用是 `player.Move(1, 0);`
+
+类class和结构体struct 是只有一个关于可见度的区别 其它没有任何区别
+class的成员 默认为private 除非声明public 声明`public:`之前的是private 之后的是public
+struct的成员 默认为public
+
+struct在C++中存在的唯一原因 是希望与C保持向后兼容性 因为C没有类 却有结构体
+
+如果我想要所有成员都是public 但又不想写public这个字 应该使用结构体吗？可以 因为它们之间就只有这么一点区别 没有正确答案 只取决于编程风格
+
+plain old data(POD) 一种**只表示变量的结构 不包含大量功能 倾向于使用struct** 这种分组只是为了让我们的代码更容易使用
+比如数学上的向量类
+
+```c++
+struct Vec2{
+    float x, y;
+    
+    void Add(const Vec2& other){
+        x += other.x;
+        y += other.y;
+    }
+};
+```
+
+无论用class还是struct 都是代表这2个浮点数的一种结构 不像之前的Player类一样 包含大量功能 **但不是说在这里不会添加方法 但添加的这个函数只用来处理这些变量 直到最后我们都只讨论这两个变量**
+
+另外就是我们**不会倾向于在struct中使用继承**
+如果要有一个完整的类层次结构 或者某种继承层次结构 倾向于使用类
+继承是一种增加另一层次的复杂的东西 可**我希望我的结构体 是数据的结构**
+
+**先在主函数中写需求 然后再回到类里写方法**
+
+```c++
+// Log类
+// 这不是一份好的代码 但是是简单的代码
+
+#include <iostream>
+
+class Log {
+public:
+	const int LogLevelError = 0; // Error级别
+	const int LogLevelWarning = 1; // Warning级别
+	const int LogLevelInfo = 2; // Info级别
+	// LogLevelXXX 只有XXX级别以上的日志会被打印出来
+
+private:
+	int m_LogLevel = LogLevelInfo;
+	// 默认级别为Info 所有级别的日志都会被打印出来
 
 
+public:
+	void SetLevel(int level) { // 设置日志级别
+		m_LogLevel = level;
+	}
+	
+	void Error(const char* message) {
+		if (m_LogLevel >= LogLevelError)
+			std::cout << "[ERROR]: " << message << std::endl;
+	}
+	void Warn(const char* message) {
+		if (m_LogLevel >= LogLevelWarning)
+			std::cout << "[WARNING]: " << message << std::endl;
+	}
+	void Info(const char* message) {
+		if (m_LogLevel >= LogLevelInfo)
+			std::cout << "[INFO]: " << message << std::endl;
+	}
+};
 
 
+int main() {
+	Log log;
+	log.SetLevel(log.LogLevelWarning);
+	log.Warn("Hello World");
+	log.Error("Hello World");
+	log.Info("Hello World");
+	std::cin.get();
+}
+//约定只打印Warning级别以上的信息 所以只输出
+// [WARNING]: Hello World
+// [ERROR]: Hello World
+// 如果我们没有设置LogLevel 默认就是InfoLevel 全部打印出来
+```
+
+`const char*` 现在就是字符串的意思 暂时不讨论
+
+**m_前缀 约定这是一个私有的类成员变量** 这样我们就可以区分在类中 哪些是成员变量 哪些是局部变量
+
+可以看到 变量放在了一块 方法放在了另一块
+
+# 静态 Static
+
+## 类或结构体外部的static
+
+2025/4/19
+
+**声明的静态函数或静态变量 只会在它被声明的cpp文件中被看到**
+
+<span id="mypoint_7"></span>`static int s_Variable = 5;` **s_前缀 约定这是一个静态变量** **这个变量只会在这个翻译单元内部链接** 它只对这个翻译单元可见 [前面讲链接的时候](#mypoint_6) 我们就提到过static 链接器不会在这个翻译单元的作用域之外 寻找那个符号定义
+
+```c++
+// Static.cpp
+static int s_Variable = 5;
+```
+
+```c++
+// Main.cpp
+#include <iostream>
+
+int s_variable = 10;
+
+int main(){
+    std::cout << s_varibale << std::endl;
+    std::cin.get();
+}
+```
+
+`Static.cpp`的`s_Variable`不会参与链接 这个程序不会链接报错 最后会输出10
+
+如果Static.cpp的`static`删掉 改成
+
+```c++
+// Static.cpp
+int s_Variable = 5;
+```
+
+不能正常编译 会链接报错 可以使用
+
+```c++
+// Main.cpp
+extern int s_Variable;
+// 之前是int s_variable = 10;
+```
+
+标志这个变量为extern 意思是它会在外部翻译单元中寻找s_Variable变量 称为external linkage或external linking 现在这样的话 s_Variable就是5 但如果Static.cpp里是`static int s_Variable = 5;` **有点像在类中声明private变量** 其他所有翻译单元都看不到这个s_Variable变量 链接器在全局作用域下 看不到这个变量
+
+函数的static用法在[前面讲链接的时候](#mypoint_6)已经提到 使用static就可以函数名重复
+
+什么情况下你会在class中使用private 你就什么情况下使用static静态变量 **尽量减少全局变量** 如果没有设定为static 那么链接器就会跨编译单元进行链接 **尽量将函数和变量标记为静态 除非你真的需要它们跨翻译单元链接**
+
+## 类或结构体中的static
+
+如果static在类或者结构体中 在类的所有实例中 **这个变量只存在一次 只有一个版本** 也就是说 你有一个类 你反复创建这个类的实例 假如你在某一个实例中修改了这个静态变量的值 那么在这个类的所有实例中 这个静态变量的值都会改变
+
+```c++
+#include <iostream>
+
+struct Entity {
+	int x, y;
+	//这里选用结构体是因为希望x y是public
+
+	void Print() {
+		std::cout << x << ", " << y << std::endl;
+	}
+};
+
+int main() {
+
+	Entity e;
+	e.x = 2;
+	e.y = 3;
+
+	Entity e1 = { 5, 8 };
+	// 这是使用初始化器来实例化
+
+	e.Print();
+	e1.Print();
+
+	std::cin.get();
+}	
+```
+
+现在就只是会正常地输出2,3 5,8
+
+结构体Entity里改成`static int x, y;` 再用`e.x` `e.y`去初始化
+
+```c++
+Entity e;
+e.x = 2;
+e.y = 3;
+
+Entity e1;
+e1.x = 5;
+e1.y = 8;
+```
+
+报错 `error LNK2001: 无法解析的外部符号 "public: static int Entityx" (?x@Entity@@2HA) ` 是因为**静态成员变量需要在类外部进行定义和初始化**
+
+可以在`struct Entity`后面 `int main()`前面写
+
+```c++
+int Entity::x;
+int Entity::y;
+```
+
+先写作用域Entity 再写变量名x 可以不需要让它等于任何东西
+现在它们就被定义了 链接器可以连接到合适的变量
+
+我们再运行 在debug下 可以发现 我们刚刚执行完`e.x = 2;` 在e.x变成2的同时 e1.x也变成了2 哪怕我们还尚未执行到`e1.x=5;` 而在我们执行完`e1.x=5;`时 e1.x和e.x同时同步地变成了5 最后的输出结果就是 5,8 5,8
+
+其实你可以看到 **e.x与e1.x的地址 是一样的 也就是说在所有实例中 x y都只有这么一个版本 所有实例指向的都是相同的x y 同一个地址**
+
+所以使用e.x e1.x去使用x 是完全没有什么意义的 **可以直接使用Entity::x 恰好能表示它的唯一性** 仿佛我们是在名为Entity的namespace中创建了两个变量 实际上它们并不属于类 它们可以是private的也可以是public的 它们仍然是类的一部分 而不是namespace 但其实它们和在namespace中一样
+
+```c++
+Entity e;
+Entity::x = 2;
+Entity::y = 3;
+
+Entity e1;
+Entity::x = 5;
+Entity::y = 8;
+```
+
+这才是它真正正确的样子 我们一直是在修改同一个变量
+
+**类中的静态变量适用于希望在所有Entity类的实例中共享某个数据 或者将这个数据实际存储在Entity类中是有意义的 因为它与Entity有关** 为了组织良好的代码 最好是在这个类中创建一个静态变量 而不是将一些静态的或者全局的东西到处乱放
+
+静态方法也是类似的 换成`static void print()` 那么`e.print();`就是`Entity::Print();` 但是**静态方法不能访问非静态变量** 所以如果要使用print方法 x y必须是静态变量
+
+现在我们让x y不再是静态的 改成普通的`int x, y;` 也删掉`int Entity::x;` `int Entity::y;` 也就是e和e1分别有自己的x y 再运行就会报错 **因为静态方法没有类实例** 实际上你在类中写的每个非静态方法总是获得当前类的一个实例作为参数 通过隐藏参数发挥作用 这是类在幕后的工作方式 我们暂时不谈 所以静态方法得不到那个隐藏参数 静态方法与在类外部编写方法是相同的 就像你在类的外面写
+
+```c++
+static void Print() {
+    std::cout << x << ", " << y << std::endl;
+}
+```
+
+它现在就完全不知道x y是什么 可以改成
+
+```c++
+static void Print(Entity e) {
+    std::cout << e.x << ", " << e.y << std::endl;
+}
+```
+
+这个方法 是非静态类方法在编译时的真实样子
+
+```c++
+static void Print() {
+    std::cout << e.x << ", " << e.y << std::endl;
+}
+```
+
+这个方法就是静态类方法使用非静态变量时的样子 所以报错 它不知道你是要访问哪个Entity的x y 每个实例的x y都是不一样的 你又没给它一个Entity的引用 即使对于静态方法调用时 你写着`e.Print();` 但实际上因为它是静态方法 等同于你写了`Entity::Print();` 所以它还是不知道要找哪个Entity的x y
+
+## 局部static
+
+声明一个变量 需要考虑两个问题 也就是**变量的生存期和作用域**
+
+生存期指 在它被删除之前 它会在我们的内存中存在多久
+作用域指 我们可以访问变量的范围 
+
+**静态局部变量 生存期基本上相当于整个程序的生存期 但作用域只在这个函数内** 但其实它不一定非要在函数里 你可以在任何作用域里声明它 这里只是用函数举例 也可以是if语句之类的 所以函数作用域的static和类作用域的static没有太大区别 生存期基本是相同的 但是在类的作用域中 类中的任何东西都可以访问这个静态变量 但在函数作用域声明一个静态变量 它将是那个函数的局部变量 对类来说也是局部变量
+
+```c++
+void Function() {
+	static int i = 0;
+}
+```
+
+意思是 当我第一次调用函数时 变量i将被初始化为0 然后所有对函数的后续调用 不会再反复创建新的变量 
+
+```c++
+#include <iostream>
+
+void Function() {
+	static int i = 0;
+	i++;
+}
+
+int main() {
+
+	for (int j = 0; j < 10; j++) {
+		Function();
+	}
+	std::cin.get();
+}
+```
+
+在debug下看这个for循环 jump in这个Function函数时 发现黄色箭头每次都跳过`static int i = 0;`这一行 直接编程将要执行`i++;` 而且即使这次循环结束了 在下一次循环执行Function函数时 i还是在那个地址没有变 而且i并不会被重置为0 毕竟黄色箭头会跳过`static int i = 0;`这一行去执行 i实际上一直在累加 变量i的生存期很长 但是一定要jump in Function函数才能看得到i的变化 监视1窗口在一遍又一遍地仅仅jump over执行for循环时 是看不到i的变化的 你必须jump in 才能看到i的更新 这也就是i的作用域仅在函数内
+
+如果Function函数内的i并不是static i会在每次执行Function函数时 都被重置为0 i是在栈上创建的 函数作用域结束时 就会被销毁
+
+实际上`static int i = 0;`写在函数内和写在函数外作为全局静态变量 使用起来效果是一样的 都是会一直累加 但是**写在函数内就可以增加不可见性** 变得不是大家都能使用
+
+单例类 Singleton 只有一个实例的类
+
+```c++
+#include <iostream>
+
+class Singleton {
+private:
+	static Singleton* s_Instance; // 那个单例实例的指针
+public:
+	static Singleton& Get() { // 获取那个单例实例 返回的是引用
+		return *s_Instance;
+	}
+
+	void Hello() {}; // 总之是做什么事情的一个方法
+};
+
+Singleton* Singleton::s_Instance = nullptr; // 初始化单例实例的指针为nullptr
+
+int main() {
+
+	Singleton::Get().Hello(); // 单例实例调用了Hello方法
 
 
+	std::cin.get();
+}
+```
 
+上面这个是类的静态
+如果使用局部静态 main函数不变 class Singleton会变成下面这样 功能是完全一样的
 
+```c++
+class Singleton {
+public:
+	static Singleton& Get() {
+		static Singleton instance;
+		return instance;
+	}
 
+	void Hello() {};
+};
+```
+
+如果仅仅是`Singleton instance;` 没有static 因为Get()返回的是引用 而不是值 instance会在作用域结束之后销毁 就算返回了一个地址 那也是临时的
+然而如果是static 生存期就很长了 每次我们调用Get()的时候 都会创建一个单例实例 然后返回这个已经存在的单例实例 这个单例实例将长时间存在 但是对于多个实例的类就没办法写这样的Get()创建 因为static就只能创建并维护这一个实例
+
+不一定是非要Singleton 比如写一个静态初始化函数来创建所有对象 那就可以使用静态Get()方法 
+
+> 感觉static的这几种用法都是为了 本可以全局的东西 却自己在内部暗中使用 而其他人甚至不可见 你这个人真是只想着自己呢
+>
+> 1. 在文件内自己偷偷用 其他文件不知道它的存在 不参与链接
+>    我起了个和外面的人一模一样的名字 大家却完全不知道
+> 2. 类的所有实例之间通用共享 被类存储管理着 大概算是属于这个类吧 其实大家都可以用啦 只是用的时候要记得去写这个类的名字
+>    你可以用 但你得时刻记着这是属于我的 这里铭刻着我的名字
+> 3. 作用域内持续长时间地使用 作用域之外不可见
+>    明明一直占着存储空间却不被人发现喵
+
+1:18:59
 
 
 
@@ -868,6 +1279,8 @@ ref = &b;
 
 
 # 本文目录使用python脚本自动生成
+
+2025/4/15
 
 ```python
 import re
@@ -1007,7 +1420,7 @@ if __name__ == "__main__":
    
     ```python
     import os
-   
+      
     path = os.path.join("C:", "Program Files", "My Project")  # 自动处理路径分隔符和空格
     print(path)  # 输出：C:\Program Files\My Project
     ```

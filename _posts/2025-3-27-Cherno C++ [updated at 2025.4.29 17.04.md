@@ -12,14 +12,20 @@
 - [控制流语句](#控制流语句)
 - [指针](#指针)
 - [引用](#引用)
-- [类](#类)
+- [类 class / struct](#类-class-struct)
 - [静态 Static](#静态-static)
   - [类或结构体外部的static](#类或结构体外部的static)
   - [类或结构体中的static](#类或结构体中的static)
   - [局部static](#局部static)
+- [枚举 enum](#枚举-enum)
+- [构造函数](#构造函数)
+- [析构函数](#析构函数)
+- [继承](#继承)
+- [虚函数](#虚函数)
 - [本文目录使用python脚本自动生成](#本文目录使用python脚本自动生成)
 
 ------
+
 
 
 我们有很多尚未解决的问题 在那些文本里我使用了 *暂时* 这个词语 请使用网页搜索功能
@@ -778,6 +784,87 @@ ptr=&buffer 它的值也是buffer这个指针的地址
 
 0x000002ac05d55070 后面的`""`引号表示buffer这个指针指向的动态分配内存当前存储的是一个空字符串 因为我们前面使用的是`memset(buffer, 0, 8);` 都初始化为0了 如果都初始化为'a' 就应该是`“aaaaaaaa  ”` 8个a 后面还有空格 空格实际上是未定义的内存内容 而不是实际的空格字符 因为buffer 未添加字符串终止符 `memset(buffer, 'a', 8);` 将 buffer 的 8 个字节填充为 'a' 但没有添加 \0（字符串终止符） 因此 buffer 被解释为一个未终止的字符串 读取时会超出分配的8字节范围 访问到未初始化的内存 未初始化的内存是动态分配的内存 可能包含随机值 例如空格或其他字符 这些值在输出时可能被解释为不可见字符或空格
 
+在这里补充栈与堆的差异
+
+- 栈（Stack）
+
+  - 自动管理：由编译器自动分配和释放 比如函数中的局部变量 函数参数
+  - 快速操作：分配和释放仅需移动栈指针 效率极高
+  - 固定大小：栈内存大小有限 超出会导致栈溢出
+  - 生命周期：变量在作用域结束时自动销毁
+
+- 堆（Heap）
+
+  - 手动管理：需显式分配（new/malloc）和释放（delete/free） 忘记释放会导致内存泄漏
+  - 灵活容量：可用内存取决于系统可用资源 通常远大于栈
+  - 较慢操作：分配需查找可用内存块 释放需处理碎片 效率较低
+  - 生命周期：对象生命周期由程序员控制 可跨作用域存在 
+
+- 现代C++的最佳实践
+
+  - 避免裸指针：使用智能指针（`std::unique_ptr`/`std::shared_ptr`）自动管理堆内存。
+  - 优先选择栈：默认使用栈 除非有明确需求必须用堆
+  - 容器类优化：标准库容器（如`std::vector`）内部使用堆内存 但对外提供栈式接口 简化使用
+
+- 常见问题
+
+  - 栈溢出：
+
+    ```cpp
+    void crash() {
+        int hugeArray[1000000];
+    }
+    ```
+
+    应改用堆分配 `std::vector<int> hugeArray(1000000);`
+
+  - 悬空指针：
+
+    ```cpp
+    int* badExample() {
+        int x = 10;
+        return &x; // 
+    }
+    ```
+
+    返回栈变量的地址 离开函数后x被销毁 指针失效
+    若需返回指针 应使用堆分配
+    也可以联想到使用[局部static](#mypoint_9) 改成`static int x = 10;` 静态变量不会在函数返回后被销毁 避免了悬空指针 但是
+
+    - 共享状态：
+
+      静态变量在多次调用中共享同一内存
+
+      ```c++
+      int* p1 = badExample(); // p1 指向的 x = 10
+      *p1 = 20;              // 修改 x 的值为 20
+      int* p2 = badExample(); // p2 也指向 x，此时 x = 20
+      ```
+
+      所有调用者共享同一个x 可能导致意外的数据污染
+
+    - 线程安全问题：
+
+      如果多线程同时调用 badExample()并修改x 需要加锁保护 否则可能导致数据竞争
+
+  - 内存泄漏：
+
+    ```cpp
+    void leak() {
+        int* p = new int(10);
+        // 忘记 delete p;
+    }
+    ```
+
+    使用智能指针或RAII（资源获取即初始化）模式
+
+- 如何选择栈还是堆？
+  - 默认用栈：适用于小型、短生命周期的数据
+  - 必须用堆：
+    - 对象太大（超出栈容量）
+    - 生命周期需要跨作用域
+    - 动态大小（如运行时决定数组长度）
+
 # 引用
 
 引用只是指针的语法糖 引用能做的所有事都可以被指针取代 但尽量去优先使用引用
@@ -857,7 +944,7 @@ int* ref = &a;
 ref = &b;
 ```
 
-# 类
+# 类 class / struct
 
 2025/4/17
 
@@ -960,8 +1047,9 @@ struct Vec2{
 
 **先在主函数中写需求 然后再回到类里写方法**
 
+<span id="mypoint_8"></span>Log类
+
 ```c++
-// Log类
 // 这不是一份好的代码 但是是简单的代码
 
 #include <iostream>
@@ -1181,7 +1269,7 @@ static void Print() {
 生存期指 在它被删除之前 它会在我们的内存中存在多久
 作用域指 我们可以访问变量的范围 
 
-**静态局部变量 生存期基本上相当于整个程序的生存期 但作用域只在这个函数内** 但其实它不一定非要在函数里 你可以在任何作用域里声明它 这里只是用函数举例 也可以是if语句之类的 所以函数作用域的static和类作用域的static没有太大区别 生存期基本是相同的 但是在类的作用域中 类中的任何东西都可以访问这个静态变量 但在函数作用域声明一个静态变量 它将是那个函数的局部变量 对类来说也是局部变量
+<span id="mypoint_9"></span>**静态局部变量 生存期基本上相当于整个程序的生存期 但作用域只在这个函数内** 但其实它不一定非要在函数里 你可以在任何作用域里声明它 这里只是用函数举例 也可以是if语句之类的 所以函数作用域的static和类作用域的static没有太大区别 生存期基本是相同的 但是在类的作用域中 类中的任何东西都可以访问这个静态变量 但在函数作用域声明一个静态变量 它将是那个函数的局部变量 对类来说也是局部变量
 
 ```c++
 void Function() {
@@ -1270,7 +1358,423 @@ public:
 > 3. 作用域内持续长时间地使用 作用域之外不可见
 >    明明一直占着存储空间却不被人发现喵
 
-1:18:59
+# 枚举 enum
+
+其实就是数值的集合 是给一个值命名的一种方法 将一组数值集合作为类型 而不仅仅是用整型作为类型
+
+```c++
+#include <iostream>
+
+enum Example {
+	A, B, C
+};
+
+int main() {
+
+	Example value = B; // 赋值必须是A B C中的一个
+
+	if (value == 1) { // 现在value等于B 就是1
+		// Do something
+	}
+
+	std::cin.get();
+}
+```
+
+此时默认的A是0 B是1 一个接一个地递增
+也可以初始化它 比如`A = 0, B = 2, C = 6` 
+如果是从一个非0数开始 `A = 5, B, C` 那么默认就是B=6 C=7
+
+枚举默认是32位int整型 但也可以指定类型 但必须是整型 不能是浮点数
+
+```c++
+enum Example : unsigned char { // 8位整型
+	A = 5, B, C
+};
+```
+
+枚举是给特定的值命名的一种方式 这样就不必在各种地方 处理各种整数
+
+[Log类](#mypoint_8)的3个级别 只是整数1 2 3 可以修改成枚举
+
+```c++
+public:
+    enum Level{
+        LevelError = 0, LevelWarning, LevelInfo
+    };
+private:
+	Level m_LogLevel = LevelInfo;
+
+// 原本是
+// public:
+// 	const int LogLevelError = 0; // Error级别
+// 	const int LogLevelWarning = 1; // Warning级别
+// 	const int LogLevelInfo = 2; // Info级别
+//
+//private:
+//	int m_LogLevel = LogLevelInfo;
+```
+
+2025/4/24
+
+倾向于显式地写成=0 虽然它默认就是=0 仅仅为了提高代码可读性
+使用Level就可以把m_LogLevel限制在枚举的那几个数字中 本例中就只能是0 1 2 后面涉及到level的也都要改成Level类而不是int
+
+在主函数里调用时 不再用`log.LogLevelError` 而是`Log::LevelError` 因为我们在Log这个类的命名空间中 有一个枚举数叫Error 枚举Level本身并不是一个命名空间 不是枚举类 暂时先不讲枚举类 所以Error Warning Info只存在于这个Log类中
+
+枚举其实就是整数
+
+# 构造函数
+
+```c++
+class Entity{
+public:
+    float X, Y;
+    
+    void Print(){
+        std::cout << X << ", " << Y << std::endl;
+    }
+};
+
+int main(){
+    Entity e;
+    e.Print();
+    std::cin.get();
+}
+```
+
+输出的是`-1.07374e+08, -1.07374e+08` 由于未初始化 X的值是未定义的随机值 在 Print 方法中访问了未初始化的X和Y 我们得到的是那个内存空间中原来的那些东西 暂时我们不讲类初始化
+
+X是public的 如果在主函数里直接用`std::cout << X << std::endl;`输出 就会报错 未初始化局部变量
+
+因此需要初始化
+
+```c++
+class Entity{
+public:
+    float X, Y;
+    
+    void Init(){
+        x = 0.0f;
+        Y = 0.0f;
+    }
+    
+    
+    void Print(){
+        std::cout << X << ", " << Y << std::endl;
+    }
+};
+
+int main(){
+    Entity e;
+    e.Init(); // 在这里初始化
+    e.Print();
+    std::cin.get();
+}
+```
+
+但这样很麻烦 每次实例化之后都要再接一句初始化 有点麻烦了 就需要构造函数
+
+构造函数是每次构造一个对象时都会调用的方法 **实例化时被调用 如果不实例化 就不会运行** 没有返回类型 名称必须与类的名称相同 可以有参数 也可以是完全空白
+
+```c++
+class Entity{
+public:
+    float X, Y;
+    
+    Entity(){
+        X = 0.0f;
+        Y = 0.0f;
+    } // 不再需要init方法了
+    
+    void Print(){
+        std::cout << X << ", " << Y << std::endl;
+    }
+};
+```
+
+现在再`Entity e;` 它默认就是有初始化的
+
+如果不指定构造函数 它也有构造函数 也就是默认构造函数 也就是
+
+```c++
+Entity(){
+}
+```
+
+什么都不会做 C++并不会把int float自动初始化为0 必须手动初始化 
+
+在类里可以写很多构造函数 当然参数需要是不一样的 这叫**函数重载 即有相同的函数/方法名 但有不同参数的不同函数版本**
+
+```c++
+Entity(float x, float y){
+    X = x;
+    Y = y;
+}
+```
+
+现在可以用参数实例化并初始化了 `Entity e(10.0f, 5.0f)` 
+
+如果使用new关键字来实例化（堆内存） 它也会调用构造函数 
+
+如果只希望别人用静态的方法 不能实例化
+
+```c++
+class Log{
+private:
+    Log() = delete; // 构造函数被删除了
+public:
+	static void Write(){
+        
+    }
+}
+```
+
+我只想让别人这样用我的Log类 `Log::Write();` 不希望别人实例化
+
+# 析构函数
+
+和构造函数很相似 是在销毁对象时被调用
+构造函数是设置变量 或者做任何所需的初始化
+析构函数是卸载变量等东西 并清理使用过的内存 
+
+析构函数也适用于栈和堆分配的对象
+如果用new分配一个对象 调用delete 析构函数会被调用
+如果是栈对象 作用域结束时 栈对象将被删除 这时 析构函数也会被调用
+
+```c++
+class Entity{
+public:
+    float X, Y;
+    
+    Entity(){
+        X = 0.0f;
+        Y = 0.0f;
+        std::cout << "Created Entity!" << std::endl;
+    }
+    
+    ~Entity(){
+        std::cout << "Destoryed Entity!" << std::endl;
+    }
+    
+    void Print(){
+        std::cout << X << ", " << Y << std::endl;
+    }
+};
+
+int main(){
+    Entity e; // 这是栈分配
+    e.Print();
+    std::cin.get();
+}
+```
+
+析构函数前面有`~`
+
+这个例子中`float X, Y;` 我们在为这两个浮点变量申请内存时 完全没有考虑之后怎么清除内存 暂时不讨论内存分配
+
+只有主函数退出时 析构函数才会被调用 所以也看不到析构函数打印的那句话 都放到函数里
+
+```c++
+class Entity{
+    // 不再复制
+}
+
+void Function(){
+    Entity e;
+    e.Print();
+}
+
+int main(){
+    Function();
+    std::cin.get();
+}
+```
+
+因为`Entity e;`是在栈上创建的 所以在Function作用域结束之后就销毁 即在`std::cin.get();`未执行时 就已经输出了`Destoryed Entity!`
+
+在函数也可以放断点 调用到这里的时候就会暂停
+
+为什么要使用析构函数？
+如果已经在堆上手动分配了任何类型的内存 那么需要手动清理
+如果在Entity类使用中或者构造中分配了内存 需要析构函数来删除内存 因为当析构函数调用时 Entity实例对象就消失了
+
+也可以手动调用析构函数 但是很少这样做 `e.~Entity();`
+对于本例 调用析构函数其实也就只是打印 并没有释放什么资源 内存的释放其实是随着栈内存的作用域结束 自动释放的
+
+# 继承
+
+相互关联的类的层级结构 有一个包含公共功能的基类 防止代码重复 然后从基类或者父类派生一些类
+
+比如游戏中 每一个实体都有自己的位置
+
+```c++
+class Entity{
+public:
+    float X, Y;
+    
+    void Move(float xa, float ya){
+        X += xa;
+        Y += ya;
+    }
+};
+
+class Player : public Entity{
+public:
+    const char* Name;
+    
+    void PrintName(){
+        std::cout << Name << std::endl;
+    }
+};
+```
+
+任何Entity类中不是私有的东西 都可以被Player类访问 在Player类里只需要写新的东西
+
+暂时我们不讨论多态 多态的意思是 一个单一类型 但有多个类型 Player不仅是一个Player 也是一个Entity 所以我们可以在任何想要使用Entity的地方使用Player 可以把Player类的实例传给适用于Entity类作为参数的函数
+也可以改变父类或者基类的行为 比如重写一个方法 用新的代码来代替父类方法运行
+
+# 虚函数
+
+虚函数允许我们在子类中重写方法
+B是A的子类 如果在A类中创建一个方法 标记为vitual 就可以在B类中重写这个方法
+
+```c++
+class Entity{
+public:
+    std::string GetName() { return "Entity"; }
+};
+
+class Player : public Entity{
+private:
+    std::string m_Name;
+public:
+    Player(const std::string& name)
+        : m_Name(name) {}
+    
+    std::string GetName() { return m_Name; }
+}
+
+int main(){
+    Entity* e = new Entity();
+    std::cout << e->GetName() << std::endl;
+    
+    Player* p = new Player("123");
+    std::cout << p->GetName() << std::endl;
+    
+    Entity* entity = p;
+    std::cout << entity->GetName() << std::endl;
+    
+    std::cin.get();
+}
+```
+
+1. `Player(const std::string& name) : m_Name(name) {}`
+   构造函数接受一个常量引用参数name
+   `:` 表示初始化列表开始
+   `m_Name(name)` 表示用参数name初始化成员变量m_Name
+   成员变量m_Name在对象创建时直接通过参数构造 而非先默认构造再赋值 避免默认构造 + 赋值的双重操作
+   等效于 先默认构造 再赋值
+
+    ```c++
+    Player(const std::string& name) {
+        m_Name = name;
+    }
+    ```
+
+2. `Entity* e = new Entity();`
+   new Entity()会在堆上动态分配一个Entity对象 并返回其内存地址/指针 因此必须用指针变量Entity*来接收
+   堆上动态分配 `Entity* e = new Entity();`搭配`e->GetName();`
+   或者在栈上创建 `Entity e;` 搭配`e.GetName();`
+3. `->`是指针访问成员的语法糖 `e->GetName()`等效于`(*e).GetName()`
+4. `Entity* entity = p;`
+   p是Player类型的指针 把它赋值给了Entity类型的指针entity 是基类指针直接指向派生类对象 这是安全的 称为向上转型 Player对象的内存布局中包含Entity的基类部分
+
+2025/4/29
+
+目前这段代码会输出
+
+```c++
+Entity
+123
+Entity //并不是123
+```
+
+`Entity* entity = p;` 为什么`entity->GetName()`会得到entity而不是123？
+我们可以知道 entity和p都是指针 它们的地址一定是相同的 但是p能访问m_Name 而entity不能 entity的静态类型是Entity* 编译器只允许通过它访问Entity类的成员 比如GetName()无法直接访问Player类的m_Name
+
+但我们希望C++能知道这个Entity实际上是Player 让它调用Player的GetName 因此需要虚函数 Dynamic Dispatch 动态联编 通过v表/虚函数表来实现编译 v表就是一个表 包含基类中所有虚函数的映射 这样就可以在运行时 将它们映射到正确的覆写/override函数 如果想覆写一个函数 就必须**将基类中的基函数标记为虚函数 在前面加上virtual 将覆写函数标记为关键字override** 只有虚函数才能被overrdie
+
+```c++
+class Entity{
+public:
+    virtual std::string GetName() { return "Entity"; }
+};
+
+class Player : public Entity{
+private:
+    std::string m_Name;
+public:
+    Player(const std::string& name)
+        : m_Name(name) {}
+    
+    std::string GetName() override { return m_Name; }
+}
+```
+
+虚函数是有运行成本的 首先需要额外的内存来存储v表 这样就可以分配到正确的函数 基类中要有一个成员指针 指向v表 以及每次调用虚函数时 要遍历这个表 来确定要映射到哪个函数
+
+虚函数（virtual）是C++实现运行时多态的关键机制 它的核心原理是
+
+- 虚表（vtable）：每个包含虚函数的类都有一个虚表 本质是一个函数指针数组 存储该类所有虚函数的实际地址
+- 虚表指针（vptr）：每个对象内部隐含一个指针（vptr） 指向其所属类的虚表 
+
+在运行时 通过对象的vptr找到虚表 再通过虚表索引调用正确的函数实现
+
+内存布局：
+
+- Entity对象：
+  ```plaintext
+  | vptr (指向 Entity 的虚表) | Entity 其他成员... |
+  ```
+
+- Player对象：
+  ```plaintext
+  | vptr (指向 Player 的虚表) | Entity 基类成员... | Player 成员（如 m_Name）... |
+  ```
+
+虚表内容：
+
+- Entity的虚表：
+  ```plaintext
+  [0] Entity::GetName 的地址
+  ```
+
+- Player的虚表：
+  ```plaintext
+  [0] Player::GetName 的地址  // 覆盖了基类的函数地址
+  ```
+
+当执行`entity->GetName()`时：  
+1. 获取vptr：通过entity指针找到对象的vptr（位于对象内存起始位置）
+2. 查找虚表：通过vptr找到所属类的虚表 而entity也就是p的这个地址的起始位置 存储的其实仍然是Player的虚表 所以会调用到Player的GetName
+3. 调用函数：从虚表中按索引（例如索引0对应GetName）取出函数地址 调用 `Player::GetName()`
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

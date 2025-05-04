@@ -22,9 +22,14 @@
 - [析构函数](#析构函数)
 - [继承](#继承)
 - [虚函数](#虚函数)
+- [接口/纯虚函数 interface](#接口纯虚函数-interface)
+- [可见性](#可见性)
+- [数组](#数组)
+- [字符串](#字符串)
 - [本文目录使用python脚本自动生成](#本文目录使用python脚本自动生成)
 
 ------
+
 
 
 
@@ -783,87 +788,6 @@ ptr=&buffer 它的值也是buffer这个指针的地址
 *ptr 是逆向引用 是“buffer这个指针的地址”位置处的变量 也就是buffer这个指针 它的值就是buffer这个指针的值 也就是分配的那块堆内存的起点
 
 0x000002ac05d55070 后面的`""`引号表示buffer这个指针指向的动态分配内存当前存储的是一个空字符串 因为我们前面使用的是`memset(buffer, 0, 8);` 都初始化为0了 如果都初始化为'a' 就应该是`“aaaaaaaa  ”` 8个a 后面还有空格 空格实际上是未定义的内存内容 而不是实际的空格字符 因为buffer 未添加字符串终止符 `memset(buffer, 'a', 8);` 将 buffer 的 8 个字节填充为 'a' 但没有添加 \0（字符串终止符） 因此 buffer 被解释为一个未终止的字符串 读取时会超出分配的8字节范围 访问到未初始化的内存 未初始化的内存是动态分配的内存 可能包含随机值 例如空格或其他字符 这些值在输出时可能被解释为不可见字符或空格
-
-在这里补充栈与堆的差异
-
-- 栈（Stack）
-
-  - 自动管理：由编译器自动分配和释放 比如函数中的局部变量 函数参数
-  - 快速操作：分配和释放仅需移动栈指针 效率极高
-  - 固定大小：栈内存大小有限 超出会导致栈溢出
-  - 生命周期：变量在作用域结束时自动销毁
-
-- 堆（Heap）
-
-  - 手动管理：需显式分配（new/malloc）和释放（delete/free） 忘记释放会导致内存泄漏
-  - 灵活容量：可用内存取决于系统可用资源 通常远大于栈
-  - 较慢操作：分配需查找可用内存块 释放需处理碎片 效率较低
-  - 生命周期：对象生命周期由程序员控制 可跨作用域存在 
-
-- 现代C++的最佳实践
-
-  - 避免裸指针：使用智能指针（`std::unique_ptr`/`std::shared_ptr`）自动管理堆内存。
-  - 优先选择栈：默认使用栈 除非有明确需求必须用堆
-  - 容器类优化：标准库容器（如`std::vector`）内部使用堆内存 但对外提供栈式接口 简化使用
-
-- 常见问题
-
-  - 栈溢出：
-
-    ```cpp
-    void crash() {
-        int hugeArray[1000000];
-    }
-    ```
-
-    应改用堆分配 `std::vector<int> hugeArray(1000000);`
-
-  - 悬空指针：
-
-    ```cpp
-    int* badExample() {
-        int x = 10;
-        return &x; // 
-    }
-    ```
-
-    返回栈变量的地址 离开函数后x被销毁 指针失效
-    若需返回指针 应使用堆分配
-    也可以联想到使用[局部static](#mypoint_9) 改成`static int x = 10;` 静态变量不会在函数返回后被销毁 避免了悬空指针 但是
-
-    - 共享状态：
-
-      静态变量在多次调用中共享同一内存
-
-      ```c++
-      int* p1 = badExample(); // p1 指向的 x = 10
-      *p1 = 20;              // 修改 x 的值为 20
-      int* p2 = badExample(); // p2 也指向 x，此时 x = 20
-      ```
-
-      所有调用者共享同一个x 可能导致意外的数据污染
-
-    - 线程安全问题：
-
-      如果多线程同时调用 badExample()并修改x 需要加锁保护 否则可能导致数据竞争
-
-  - 内存泄漏：
-
-    ```cpp
-    void leak() {
-        int* p = new int(10);
-        // 忘记 delete p;
-    }
-    ```
-
-    使用智能指针或RAII（资源获取即初始化）模式
-
-- 如何选择栈还是堆？
-  - 默认用栈：适用于小型、短生命周期的数据
-  - 必须用堆：
-    - 对象太大（超出栈容量）
-    - 生命周期需要跨作用域
-    - 动态大小（如运行时决定数组长度）
 
 # 引用
 
@@ -1701,14 +1625,14 @@ Entity //并不是123
 ```
 
 `Entity* entity = p;` 为什么`entity->GetName()`会得到entity而不是123？
-我们可以知道 entity和p都是指针 它们的地址一定是相同的 但是p能访问m_Name 而entity不能 entity的静态类型是Entity* 编译器只允许通过它访问Entity类的成员 比如GetName()无法直接访问Player类的m_Name
+我们可以知道 entity和p都是指针 通过赋值 它们的地址一定是相同的 但是p能访问m_Name 而entity不能 entity的静态类型是Entity* 编译器只允许通过它访问Entity类的成员 比如GetName()无法直接访问Player类的m_Name
 
 但我们希望C++能知道这个Entity实际上是Player 让它调用Player的GetName 因此需要虚函数 Dynamic Dispatch 动态联编 通过v表/虚函数表来实现编译 v表就是一个表 包含基类中所有虚函数的映射 这样就可以在运行时 将它们映射到正确的覆写/override函数 如果想覆写一个函数 就必须**将基类中的基函数标记为虚函数 在前面加上virtual 将覆写函数标记为关键字override** 只有虚函数才能被overrdie
 
 ```c++
 class Entity{
 public:
-    virtual std::string GetName() { return "Entity"; }
+    virtual std::string GetName() { return "Entity"; } // 修改了
 };
 
 class Player : public Entity{
@@ -1718,7 +1642,7 @@ public:
     Player(const std::string& name)
         : m_Name(name) {}
     
-    std::string GetName() override { return m_Name; }
+    std::string GetName() override { return m_Name; } // 修改了
 }
 ```
 
@@ -1760,6 +1684,444 @@ public:
 2. 查找虚表：通过vptr找到所属类的虚表 而entity也就是p的这个地址的起始位置 存储的其实仍然是Player的虚表 所以会调用到Player的GetName
 3. 调用函数：从虚表中按索引（例如索引0对应GetName）取出函数地址 调用 `Player::GetName()`
 
+在debug下 指针p和指针entity 的值是同一个地址 而且现在entity和p的值除了地址也都会显示m_Name=123 entity显示的类型是Entity\*{Player} 在使用虚函数之前 entity是看不到m_Name的 类型也只是Entity\*
+
+内存窗口显示这个地址的内容是 64位小端序 vtpr要看前8字节 vtpr就是 `18 ec 77 35 f7 7f 00 00` 那就是地址0x7FF73577EC18
+
+到这个地址去看 这就是Player类的虚表 前8个字节是`95 16 77 35 F7 7F 00 00` 那么函数Player::GetName地址就是0x7FF735771695 在内存窗口输入&Player::GetName又不是这个地址 最后两个字节不一样 是因为编译器在虚表中插入了调整this指针的代码片段 称为 Thunk 而非直接存储函数地址 这是MSVC实现多态时的常见行为 尤其在涉及虚函数覆盖或特定内存布局时
+
+# 接口/纯虚函数 interface
+
+纯虚函数允许我们在基类中定义一个没有实现的函数 然后强制子类去实现该函数
+
+接口类只包含未实现的方法 所以基本上不能实例化
+
+```c++
+class Entity{
+public:
+    virtual std::string GetName() = 0; //修改了
+};
+
+class Player : public Entity{
+private:
+    std::string m_Name;
+public:
+    Player(const std::string& name)
+        : m_Name(name) {}
+    
+    std::string GetName() override { return m_Name; }
+}
+```
+
+仍然是virtual `=0` 意味着它必须在一个子类中实现
+
+它还是一个类 是class 不是interface 是一个只有虚函数的类 C++没有Interface关键字 接口只是C++的类
+
+现在这样不能实例化Entity 现在Player里实现了GetName 所以还可以实例化 如果没有实现 Player也不能实例化
+
+```c++
+class Printable{
+public:
+	virtual std::string GetClassName() = 0;
+};
+
+class Entity : public Printable{
+    // 要让Entity实现GetClassName()
+public:
+    virtual std::string GetName() { return "Entity"; }
+    std::string GetClassName() override { return "Entity"; }
+}
+
+class Player : public Entity{
+private:
+    std::string m_Name;
+public:
+    Player(const std::string& name)
+        : m_Name(name) {}
+    
+    std::string GetName() override { return m_Name; }
+    
+    std::string GetClassName() override { return "Player"; }
+}
+
+void Print(Printable* obj){
+    std::cout << obj->GetClassName() << std::endl;
+}
+```
+
+只要某个Printable的子类没有覆写GetClassName() 这个类就无法实例化
+Player已经是Entity的子类了 Entity里已经实现GetClassName() 这里不用再实现 如果不是子类的话 就要写成`class Player : public Entity, Printable`
+Printable子类的每一个实例都同时也是一个Printable 所以都可以作为Print()的参数传进去
+
+# 可见性
+
+谁能看见它们 调用它们 可见性是对程序实际运行方式和程序性能都完全没有影响 可见性并不是你的CPU需要知道的东西 计算机是不知道的 只是为了方便组织代码
+
+private protected public
+
+private就是只有自己这个类内部可见 这个类的实例不可见 继承了这个类的子类也不可见 但是还有这个类的friend这种东西 也可以对private内容读取和写入 暂时不讨论
+
+protected比private更可见 比public更不可见 这个类和它的子类可见 这个类的实例不可见
+
+public 所有人都可以访问
+
+可见性只是给人用的 在使用一个类的时候 只被允许使用public的东西 确保人们不会调用他们不应该调用的代码 因为有可能破坏其它东西 也可以给自己用 可以看到自己代码的设计意图 想要的访问和使用类的方式
+
+# 数组
+
+```c++
+int example[5];
+example[0] = 2;
+
+std::cout << example[0] << std::endl;
+std::cout << example << std::endl;
+```
+
+example其实是一个指针 会返回这个数组的首地址
+example[0]是int
+
+如果访问example[] 0-4以外的值 debug下会提示内存访问违规 release下不会报错 只是写入了不属于你的内存 所以要在数组边界内读写
+
+数组常常与for循环结合
+
+```c++
+for(int i=0; i<5; i++) // 不要写成i<=4 性能开销更大 不仅要做小于的比较 还要做等于
+    example[i] = i;
+```
+
+debug下在内存窗口访问&example 可以看到00 00 00 00 01 00 00 00 02 00 00 00 03 00 00 00 04 00 00 00 cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc
+
+注意到数组是连续的内存 小端序现在已经填充上了01234 每个数据都是int 4字节
+
+通过example[i]来访问特定索引时 实际上是对example这个指针的地址取了一个偏移量bias 比如对于example[2] 就是对这个地址+2*4字节(int)的偏移量
+
+数组实际上就是一个指针 本例中是整型指针
+所以你也可以完全这样做
+
+```c++
+int* ptr = example;
+
+example[2] = 5;
+*(ptr + 2) = 6;
+```
+
+ptr+2不是加2个字节的 而是加了2*4个字节 因此`*(ptr + 2)`就是`example[2]` 先后把它修改成了5和6
+
+指针的加法操作不是按字节数加法 而是针对这个指针的数据类型进行 ptr是int类型的指针 于是ptr+2 的结果是指针移动2个int的距离 不是加2个字节 是移动 2\*sizeof(int) 个字节
+
+如果真的想**对字节进行操作 就把指针转换成一个字节的char类型** 做偏移 最后要把它转回int类型的指针 才能对它赋值
+
+```c++
+*(int*)((char*)ptr + 2*sizeof(int)) = 6;
+```
+
+也可以在堆上创建数组 
+
+```c++
+int example[5]; // 栈创建
+
+int* another = new int[5]; // 堆创建
+delete[] another;
+```
+
+这两种创建的含义是一样的 但是生存期不同 栈创建离开作用域就会被销毁 堆创建在我们手动销毁时才会消失 必须用delete删除 因为是用数组操作符`[]`分配的 所以也要用它删除
+
+最大的差异就是生存期 这样比如某个函数返回的是在这个函数中创建的数组 其实就是返回了指针 就必须用堆创建 返回的地址才有效 也可以联想到使用[局部static](#mypoint_9) 静态变量不会在函数返回后被销毁 避免了悬空指针 但是比如
+
+```cpp
+int* badExample() {
+    int x = 10;
+    return &x; // 
+}
+```
+
+返回栈变量的地址 离开函数后x被销毁 指针失效
+改成`static int x = 10;`
+
+- 共享状态：
+
+  静态变量在多次调用中共享同一内存
+
+  ```c++
+  int* p1 = badExample(); // p1 指向的 x = 10
+  *p1 = 20;              // 修改 x 的值为 20
+  int* p2 = badExample(); // p2 也指向 x，此时 x = 20
+  ```
+
+  所有调用者共享同一个x 可能导致意外的数据污染
+
+- 线程安全问题：
+
+  如果多线程同时调用 badExample()并修改x 需要加锁保护 否则可能导致数据竞争
+
+堆内存还有**间接寻址**
+
+```c++
+class Entity{
+public:
+	int example[5];
+	
+    Entity(){
+        for(int i=0; i<5; i++)
+            example[i] = i;
+    }
+};
+
+int main(){
+    Entity e;
+    
+    std::cin.get();
+}
+```
+
+如果是栈创建 在内存窗口查看e的地址 就是00 00 00 00 01 00 00 00 02 00 00 00 03 00 00 00 04 00 00 00 cc cc cc
+
+改成堆创建
+
+```c++
+class Entity{
+public:
+	int* example = new int[5];
+	
+    Entity(){
+        for(int i=0; i<5; i++)
+            example[i] = i;
+    }
+};
+```
+
+再去内存窗口查看e的地址 就是70 62 38 94 c7 02 00 00 cc cc cc cc 这是小端序 也就是要再进入地址0x000002c794386270 在这个地址我们才看到00 00 00 00 01 00 00 00 02 00 00 00 03 00 00 00 04 00 00 00 fd fd fd 这是间接寻址 这样在内存中跳跃肯定会影响性能 尽量使用栈创建
+
+C++11内置数据结构 std::array 而我们现在用的是原始数组 不能计算原始数组的大小
+
+```c++
+int a[5];
+```
+
+这是栈创建 可以这样计算
+`int count_a = sizeof(a) / sizeof(int);`
+sizeof(a)返回的是数组占多少字节 本例是20 除掉sizeof(int) 才是数组中元素的计数 count_a最后就是20/4=5
+
+**一般使用count表示元素个数 size表示字节数**
+
+但如果是堆创建
+
+```c++
+int* b = new int[5];
+```
+
+`sizeof(b)`得到的是一个int型指针的大小 没有办法像栈分配那样计算
+
+但是倾向于不要这样去算 还是自己维护数组大小
+```c++
+const int exampleSize = 5;
+int example[exampleSize];
+```
+
+但是你这么写就会报错 这是**C++的问题 在栈中为数组申请内存的时候 数组的大小必须是一个编译时就要知道的常量** 所以还记得在C语言中 一般我们把这个const int设置成全局变量 要么就写成define宏定义 所以在这里要写成
+
+```c++
+static const int exampleSize = 5;
+int example[exampleSize];
+```
+
+```c++
+// 需要 #include <array>
+std::array<int, 5> another;
+```
+
+这是C++11的数组 int是类型 5是数组大小
+调用数组大小就用`another.size()` 当然因为它有这种很多功能 开销会比原始数组会更大 但通常是值得的 使用std数组会比使用原始数组更安全
+
+暂时我们先不讨论这种数组
+
+# 字符串
+
+一个字符是一个字节 ASCII码 其他语言字符也许不止一个字节 有其它编码 如果用1个字节8bit编码 能表示256个字符 对于中文远远不够 2个字节16bit编码就是65536个 暂时我们不讨论字符编码 字体渲染
+
+通常字符串里就是很多1个字节的字符 字符串其实就是char类型的字符数组
+
+```c++
+char* name = "123";
+name[2] = 'a';
+```
+
+但是编译器是不推荐我这么做 告诉我要改成`const char*` 因为**字符串字面量是存储在内存的只读部分的 试图修改会导致未定义行为**
+
+无论如何"123"其实是一个const char[4] 隐藏的最后一个字节是0 称为空终止字符 是字符串结束的地方 其实我们不知道字符串到底有多少个字符 就靠从指针开始直到终止符0来计算
+
+"123" 其实是const char[4] 因为字符串最后有一个空终止符'\0' 不是字符0 而是就是0 NULL "123"就是字符串字面量 
+
+```c++
+const char name[4] = "123";
+const char* name = "123";
+// 这两种写法都可以
+```
+
+```c++
+const char* name = "123";
+const char name2[3] = {'1', '2', '3'};
+```
+
+字符是单引号 双引号是`char*` 不是字符串 是指针
+
+第一行在内存窗口查看是 31 32 33 00 00 00
+第二行在内存窗口查看是 31 32 33 cc cc cc
+输出name2得到的是123烫烫烫烫烫烫烫烫 其实就是一堆随机字符 因为没有空终止符 cout就不知道打印到哪里结束 如果写成 `const char name2[4] = {'1', '2', '3', '\0'};` 写'0'或者'\0'都可以 在ASCII码里 0对应的是NULL 或者直接写数字0 因为ASCII码里字符'0'对应的就是0 现在就能正确地打印123
+
+C++标准库有std::string 它只是一个char* 是一个char数组和一些用来操作char数组的函数 
+
+```c++
+// #include <string>
+std::string name = "123"
+```
+
+其实就是把`const char*`换成了`std::string` string有一个构造函数 接收`char*`或者`const char*`参数 现在name其实是一个const char数组 不是char数组 定义字符串时 双引号里的很多字符 在C++里就是const char数组
+
+string也有很多方法 比如可以调用`name.size()`
+
+- 字符串附加 append
+
+```c++
+// 错误代码
+std::string name = "123" + "hello";
+```
+
+但是双引号里的时const char数组 不是字符串 两个指针不能相加
+
+```c++
+std::string name = "123";
+name += "hello";
+```
+
+现在就是将一个指针加到了name上 `+=`这个操作符在string类中被重载了 所以可以这样写 也可以写成
+
+```c++
+std::string name = std::string("123") + "hello";
+```
+必须将一个操作数显式地转换为std::string 因为C++不允许两个`const char*`直接相加
+
+```c++
+using namespace std::string_literals;
+std::string name = "hello"s + " world";
+std::string name = u8"hello"s + u8" world";
+std::wstring name = L"hello"s + L" world";
+std::u32string name = U"hello"s + U" world";
+```
+
+"hello"s中的s是一个用户定义的字面量 将字符串字面量（如"hello")转换为std::string对象 这个功能来自于C++14中的`std::string_literals`命名空间
+
+`"hello"s`是用户定义字面量 等效于`std::string("xxx")`
+
+1. 第一个操作数：`"hello"s`通过用户定义字面量转换为`std::string`对象
+
+2. 第二个操作数：`" world"`是`const char*`类型
+
+3. 运算符重载：`std::string`类定义了以下重载：
+
+   ```
+   std::string operator+(const std::string& lhs, const char* rhs);
+   ```
+
+4. 隐式转换：右侧的`const char*`会自动转换为`std::string`临时对象
+
+原始内存布局：
+"hello" -> ASCII码：68 65 6C 6C 6F 00
+" world" -> 20 77 6F 72 6C 64 00
+
+操作过程：
+
+1. 创建"hello"s的std::string（分配堆内存）
+2. 创建临时std::string(" world")
+3. 执行operator+，分配新内存合并内容
+   最终结果：hello world
+
+**仍然建议把每一个都显式地写出后缀s**
+
+```c++
+const char* name = u8"123"; // 普通的const char 1个字节8bit的字符 utf8
+const wchar_t* name2 = L"123"; // 宽字符 反正不是1字节 可能是2字节 可能是4字节 取决于编译器
+
+const char16_t* name3 = u"123"; // 2个字节16bit的字符 utf16
+const char32_t* name4 = U"123"; // 4个字节32bit的字符 utf32
+```
+
+utf-8 变长编码（1-4字节） 1个ASCII字符占1字节 1个汉字通常占3字节
+
+```c++
+// 方法1
+const char* example = R"(Line1
+Line2
+Line3)";
+
+// 或者写
+std::string example = R"(Line1
+Line2
+Line3)"s;  // 注意这里需要后缀s
+```
+
+**处理多行文本最优先使用**`R"(...)"` 直接保留所有换行符 不用写\n \t
+
+```c++
+// 方法2
+const char* example = "Line1\n"
+    "Line2\n"
+    "Line3\n";
+
+// 或者写
+using namespace std::string_literals;
+std::string example = "Line1\n"s
+    "Line2\n"s
+    "Line3\n"s;
+// 注意这里需要后缀s 当然也可以只写一个后缀s
+
+// 如有可能 也可以不拼接
+std::string example = "Line1\nLine2\nLine3\n"s;
+```
+
+相邻字符串字面量自动拼接 等效于"Line1\nLine2\nLine3\n" 这种写法要手动写\n
+
+```c++
+// 方法3 和方法2相比就是多了+ 这是我们最开始最原始的方法
+std::string example = std::string("Line1\n") + 
+                 "Line2\n" + 
+                 "Line3\n" + 
+                 "Line4";
+
+// 或者写
+std::string example = "Line1\n"s + 
+                 "Line2\n" + 
+                 "Line3\n" + 
+                 "Line4";
+```
+
+- 查询name字符串里是否包含'lo'
+
+```c++
+bool contains = name.find("lo") != std::string::npos;
+```
+
+`std::string::npos;`表示一个不存在的位置 `name.find("lo")`返回的是lo所在的首位置
+
+- 把字符串传给其它函数 
+
+```c++
+void PrintString(std::string string){
+    string += "h";
+    std::cout << string << std::endl;
+}
+```
+
+传的不是引用 只不过是把传入的string复制到了函数里 不会影响到传递的原始string 但是字符串的复制是很浪费时间的 所以即使实现的功能是通过只读就能完成 也尽量通过常量引用传递
+
+```                                                                                                   c++
+void PrintString(const std::string& string){
+    string += "h";
+    std::cout << string << std::endl;
+}
+```
+
+**const T& 常量引用是引用 所以不用复制 const表示我们不会修改它 是只读访问** 在大型对象适用 而对于内置类型如int double 复制成本低 直接传值会更高效 暂时不过多讨论
 
 
 
@@ -1773,14 +2135,58 @@ public:
 
 
 
+在这里补充栈与堆的差异
 
+- 栈（Stack）
 
+  - 自动管理：由编译器自动分配和释放 比如函数中的局部变量 函数参数
+  - 快速操作：分配和释放仅需移动栈指针 效率极高
+  - 固定大小：栈内存大小有限 超出会导致栈溢出
+  - 生命周期：变量在作用域结束时自动销毁
 
+- 堆（Heap）
 
+  - 手动管理：需显式分配（new/malloc）和释放（delete/free） 忘记释放会导致内存泄漏
+  - 灵活容量：可用内存取决于系统可用资源 通常远大于栈
+  - 较慢操作：分配需查找可用内存块 释放需处理碎片 效率较低
+  - 生命周期：对象生命周期由程序员控制 可跨作用域存在 
 
+- 现代C++的最佳实践
 
+  - 避免裸指针：使用智能指针（`std::unique_ptr`/`std::shared_ptr`）自动管理堆内存。
+  - 优先选择栈：默认使用栈 除非有明确需求必须用堆
+  - 容器类优化：标准库容器（如`std::vector`）内部使用堆内存 但对外提供栈式接口 简化使用
 
+- 常见问题
 
+  - 栈溢出：
+
+    ```cpp
+    void crash() {
+        int hugeArray[1000000];
+    }
+    ```
+
+    应改用堆分配 `std::vector<int> hugeArray(1000000);`
+    
+  - 内存泄漏：
+  
+    ```cpp
+    void leak() {
+        int* p = new int(10);
+        // 忘记 delete p;
+    }
+    ```
+  
+    使用智能指针或RAII（资源获取即初始化）模式
+  
+- 如何选择栈还是堆？
+
+  - 默认用栈：适用于小型、短生命周期的数据
+  - 必须用堆：
+    - 对象太大（超出栈容量）
+    - 生命周期需要跨作用域
+    - 动态大小（如运行时决定数组长度）
 
 # 本文目录使用python脚本自动生成
 

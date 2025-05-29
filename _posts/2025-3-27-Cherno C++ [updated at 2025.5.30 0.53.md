@@ -3389,11 +3389,14 @@ int main()
 
 1. `std::vector<Vertex> vertices;`
    vertices对象本身是存储在main函数的栈帧中 此时这个vector size=0 capacity=0
+   
 2. `vertices.push_back({1, 2, 3})` 
    用**聚合初始化隐式构造**一个临时Vertex对象{1, 2, 3} 当然也可以用`vertices.push_back(Vertex(1, 2, 3));`显式构造 无论显式还是隐式构造 都是调用了Vertex的构造函数  最后要把临时对象从栈帧拷贝到真实的那个Vector所在的内存中 实际上是**在main函数的栈帧中构造了这个临时Vertex对象** push_back尝试将这个临时对象添加到vector中 而vector初始为空 容量为0 就需要扩容 **vector的元素是存储在堆内存中 与main栈帧无关** 所以要分配堆内存 容量为1 然后**将main栈帧中的临时对象拷贝构造到vector的堆内存中** 触发拷贝构造函数 输出一个Copied! **main栈帧中的临时对象在表达式结束之后销毁**
    此时 vector size=1 capacity=1
+   
 3. `vertices.push_back({4, 5, 6})`
    隐式构造第二个临时Vertex对象{4, 5, 6} 当前vector容量为1 但需要存储2个元素 需要**扩容** 新容量为2\*capacity=2 **将原有元素从旧的堆内存拷贝构造到新的堆内存** 输出一个Copied! 将新临时对象{4, 5, 6}从main栈帧拷贝构造到新的堆内存 输出一个Copied! 然后销毁旧内存中的元素 此时vector size=2 capacity=2
+   
 4. `vertices.push_back({ 7, 8, 9 });` 现在vector的容量是2 再添加{7, 8, 9}就需要扩容 会扩容成4 {1, 2, 3}从旧内存复制到新内存是调用1次拷贝构造函数 {4, 5, 6}从旧内存复制到新内存是调用1次拷贝构造函数 {7, 8, 9}从临时对象复制到新内存是调用1次拷贝构造函数 此时vector size=2 capacity=2
 
 debug模式下 把鼠标悬停在vertices变量名上 再按小三角▶ 就可以看到size、capacity、vector中的元素列表 可以显示每个vector对象的具体值
@@ -3765,7 +3768,7 @@ int add(int a, int b);
 右键Engine项目 属性 - 常规 - 配置类型 设置成 静态库.lib
 应用到 所有配置 所有平台
 
-按照[Visual Studio设置](#Visual Studio设置)修改输出目录和中间目录 以及创建src文件夹
+按照[Visual Studio设置](#visual-studio设置)修改输出目录和中间目录 以及创建src文件夹
 
 解决方案视图
 在Game项目 右键源文件 通过 新建项 创建 Application.cpp

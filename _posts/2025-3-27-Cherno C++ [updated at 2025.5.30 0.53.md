@@ -26,6 +26,25 @@
 - [可见性](#可见性)
 - [数组](#数组)
 - [字符串](#字符串)
+- [CONST](#const)
+- [构造函数初始化列表](#构造函数初始化列表)
+- [三元操作符](#三元操作符)
+- [创建并初始化C++对象](#创建并初始化c对象)
+- [new](#new)
+- [隐式构造函数 隐式转换](#隐式构造函数-隐式转换)
+- [运算符重载](#运算符重载)
+- [this](#this)
+- [栈作用域生存期](#栈作用域生存期)
+- [智能指针](#智能指针)
+- [拷贝与拷贝构造函数](#拷贝与拷贝构造函数)
+- [-> 箭头操作符](#-箭头操作符)
+- [vector](#vector)
+- [std::vector使用优化](#stdvector使用优化)
+- [C++库](#c库)
+  - [静态链接](#静态链接)
+  - [动态链接](#动态链接)
+  - [创建库和使用库](#创建库和使用库)
+- [生成文件列表](#生成文件列表)
 - [本文目录使用python脚本自动生成](#本文目录使用python脚本自动生成)
 
 ------
@@ -33,9 +52,12 @@
 
 
 
-我们有很多尚未解决的问题 在那些文本里我使用了 *暂时* 这个词语 请使用网页搜索功能
 
-2025/3/27
+
+
+
+
+我们有很多尚未解决的问题 在那些文本里我使用了 *暂时* 这个词语 请使用网页搜索功能
 
 只有main函数可以没有返回值 默认返回0 其他函数都要有返回值 或者void
 
@@ -58,7 +80,8 @@ c++并不关心你的文件 文件只是提供给编译器源代码的一种方�
 
 ```c++
 //function.cpp
-int function(){
+int function()
+{
 	//随便写点什么代码
 #include "EndBrace.h" //这里就可以用这个include来代替这里缺的}
 ```
@@ -66,20 +89,20 @@ int function(){
 这就是预处理器做的 你如果写了一个`#define INTEGER int` 那么预处理器就会把你代码里所有的INTERGER替换成int 预处理完其实是得到一个 `.i` 文件
 ```c++
 //function.i
-int function(){
+int function()
+{
 	///随便写点什么代码
 }
 ```
 
 这就是 `.i` 文件里的样子 不过会比这个多一些编译器自动生成的注释
 
-2025/3/29
-
 `#if` 让我们包含或者排排除基于给定条件的代码
 
 ```c++
 #if 1
-int multiply(int a, int b){
+int multiply(int a, int b)
+{
     int result = a * b;
     return result;
 }
@@ -89,7 +112,8 @@ int multiply(int a, int b){
 在 `.i` 文件里就是
 
 ```c++
-int multiply(int a, int b){
+int multiply(int a, int b)
+{
     int result = a * b;
     return result;
 }
@@ -99,7 +123,8 @@ int multiply(int a, int b){
 
 ```c++
 #if 0
-int multiply(int a, int b){
+int multiply(int a, int b)
+{
     int result = a * b;
     return result;
 }
@@ -128,8 +153,6 @@ Visual Studio中 对于当前项目 选择 属性—C/C++—预处理器—预�
 
 # 链接
 
-2025/3/30
-
 错误列表 C开头的错误代码 就是编译错误 LNK开头的错误代码 是链接错误
 
 实际上程序的入口点并不一定是main函数 也可以在属性—链接器—高级—入口点 进行配置
@@ -139,8 +162,6 @@ Visual Studio中 对于当前项目 选择 属性—C/C++—预处理器—预�
 <span id="mypoint_6"></span>如果在函数前面加一个 [static](#mypoint_7) 就说明这个函数只在当前cpp文件里会被使用 其它cpp文件里都不会用到 那么它就不用参与链接 其他cpp文件就不使用 
 
 参数不对 返回类型不对 函数名不对 都会发生链接错误
-
-2025/4/3
 
 函数或者变量 有相同的名字和相同的签名 也会发生链接错误
 
@@ -215,17 +236,15 @@ float 4个字节 double 8个字节 `float virable=5.5` 你以为你定义了一�
 #endif
 ```
 
-`#include "Log.h"` `#include <iostream>` 有些用" " 有些用< >
+`#include "Log.h"` `#include <iostream>` 有些用" " 有些用< > 我们[暂时](#mypoint_12)不讨论
 
-如果头文件在某个文件夹里 用< >告诉编译器搜索包含路径文件夹 " "是包含相对于当前文件的文件 比如我有一个Log.h在Log.cpp文件所在目录的上层目录下 可以用`#include "../Log.h"`去返回到当前文件的上级目录 如果用< >就没有相对于当前文件的了 只需要在其中一个包含目录里面就行了 暂时我们不讨论包含目录的问题 任何时候我们都可以用" " 而< >只用于编译器包含路径 " "可以做一切 但我们通常只用它在相对路径 主要还是用< > iostream也是一个文件 它只是没有扩展名 C++的设计者为了将C++标准库与C标准库进行区分才这样做 C标准库常常有.h扩展 但C++没有 可以在#include iostream那句话右键 转到文档iostream来查看代码 在文档标签页那里右键 就可以打开它所在的文件夹 或者复制它所在路径
+iostream也是一个文件 它只是没有扩展名 C++的设计者为了将C++标准库与C标准库进行区分才这样做 C标准库常常有.h扩展 但C++没有 可以在#include iostream那句话右键 转到文档iostream来查看代码 在文档标签页那里右键 就可以打开它所在的文件夹 或者复制它所在路径
 
 # Debug
 
 断点 和 读取内存
 
 计算机总是对的 它报错的话 99.99%是你错了而不是它错了
-
-2025/4/5
 
 在代码的任何一行我们都可以设置断点 当程序进行到这一行时 就暂停 在整个项目中 它会挂起执行线程 我们暂停程序 然后看看它的内存中发生了什么 一个运行中的程序所需的内存是相当大的 包括你设置的每一个变量 包括要调用的函数 当你将程序中断后 内存数据实际上还在 能查看内存 对于诊断程序出问题的原因非常有用 通过查看内存可以看到每一个变量的值 这个变量不应该设置为这个值 肯定出错了 还可以单步逐行运行代码 
 
@@ -236,7 +255,8 @@ step over 逐过程(F10) 意思是从当前函数跳到下一行代码
 step out 跳出(Shift+F11)意思是跳出当前函数 回到调用这个函数的位置
 
 ```c++
-int main() {
+int main()
+{
 	Log("Hello World!");
 	std::cin.get();
 }
@@ -245,7 +265,8 @@ int main() {
 我们在第二行设置断点 然后step into 就会进入Log.cpp（Log函数所在的文件） 里的Log函数
 
 ```c++
-void Log(const char* message) {
+void Log(const char* message)
+{
 	std::cout << message << std::endl;
 }
 ```
@@ -256,12 +277,14 @@ void Log(const char* message) {
 再来一个例子
 
 ```c++
-int main() {
+int main()
+{
 	int a = 8;
 	a++;
 	const char* string = "Hello";
 
-	for (int i = 0; i < 5; i++) {
+	for (int i = 0; i < 5; i++)
+	{
 		const char c = string[i];
 		std::cout << c << std::endl;
 	}
@@ -369,20 +392,20 @@ C:\MinGW\bin\g++.exe
 
 解决方案资源管理器上方有个工具栏 有一个 显示所有文件 的按钮 这样视图就会变成硬盘里的目录结构 这时候再在project_test项目那里右键—添加 就有添加文件夹的选项 可以在此时创建`src`文件夹 把我们新建的cpp文件移动到src文件夹中 切换视图 发现我们新建的cpp仍然在源文件里 无论把它放到哪里 都不会影响真实的文件组织形式
 
-> 这些东西在 GAMES104 的 note 2025/3/29也有所提及 是打开Piccolo源码时感到不解 查询DeepSeek得到 但这次才算深刻理解文件组织形式
+> 这些东西当时在 GAMES104 打开Piccolo引擎源码时感到不解 查询DeepSeek得到 但这次才算深刻理解文件组织形式
 
 我们快速写一个hello world程序 然后对整个项目进行生成 在输出窗口可以看到
 ```
 生成开始于 0:54...
 1>------ 已启动生成: 项目: Project_test, 配置: Debug x64 ------
-1>Project_test.vcxproj -> C:\coding\alpha\C++\test\Project_test\x64\Debug\Project_test.exe
+1>Project_test.vcxproj -> D:\coding\C++\Project_test\x64\Debug\Project_test.exe
 ```
 
 Debug x64 是因为我们在Debug x64模式下进行的生成
 x64是64位 win64
 x86是32位 win32
 
-我们现在知道了exe文件所在位置 但是真正打开这个文件夹 却找不到Project_test.exe文件 因为你并没有仔细看 实际上你打开的是 C:\coding\alpha\C++\test**\Project_test\Project_test**\x64\Debug
+我们现在知道了exe文件所在位置 但是真正打开这个文件夹 却找不到Project_test.exe文件 因为你并没有仔细看 实际上你打开的是 D:\coding\C++**\Project_test\Project_test**\x64\Debug
 
 ```
 ├──project_test
@@ -403,13 +426,11 @@ x86是32位 win32
 
 中间目录 改成 `$(SolutionDir)bin\intermediates\$(Platform)\$(Configuration)\` 就只是在bin下面多了一个intermediates
 
-然后点确认 我们在project_test项目那里右键—清理 删除许多旧文件 这样删除不彻底 还是手动去文件资源管理器把有debug和x64的文件夹都删除 重新build 现在exe文件就在 `C:\coding\alpha\C++\test\Project_test\bin\x64\Debug` 这个文件夹里同时还有`Project_test.pdb`和`Project_test.ilk` 许多中间文件都在`C:\coding\alpha\C++\test\Project_test\bin\intermediates\x64\Debug`
+然后点确认 我们在project_test项目那里右键—清理 删除许多旧文件 这样删除不彻底 还是手动去文件资源管理器把有debug和x64的文件夹都删除 重新build 现在exe文件就在 `D:\coding\C++\Project_test\bin\x64\Debug` 这个文件夹里同时还有`Project_test.pdb`和`Project_test.ilk` 许多中间文件都在`D:\coding\C++\Project_test\bin\intermediates\x64\Debug`
 
-在project_test项目那里右键—属性 输出目录那里 在编辑的时候 最右侧有一个选项符号 展开 点击 <编辑...> 然后点击 宏>> 我们就可以看到很多 \$( ) 这种形式的东西 在上方空白方框里 搜索SolutionDir 可以看到在本例中的目录为 `C:\coding\alpha\C++\test\Project_test\` 在最后它是自带 \ 的 所以我们在设置输出目录和中间目录时 \$(SolutionDir) 与 bin 中间 不用写 \
+在project_test项目那里右键—属性-常规 输出目录那里 在编辑的时候 最右侧有一个选项符号 展开 点击 <编辑...> 然后点击 宏>> 我们就可以看到很多 \$( ) 这种形式的东西 在上方空白方框里 搜索SolutionDir 可以看到在本例中的目录为 `D:\coding\C++\Project_test\` 在最后它是自带 \ 的 所以我们在设置输出目录和中间目录时 \$(SolutionDir) 与 bin 中间 不用写 \
 
 # if 语句
-
-2025/4/7
 
 如果条件为真 我们跳到源代码的某一部分 如果值为假 我们跳到我们源代码的另一部分 我们这里说是源代码 但在实际运行的应用程序中是指机器指令 当我们开始一个应用程序时 整个应用程序及其所有模块加载到内存中 所有这些指令组成了我们的程序 现在都存储在内存中 当我们有了条件语句所产生的分支 我们是在告诉电脑跳到我们的这部分内存 在那里开始执行我们的指令 if语句和分支通常有比较大的开销 如果效率高做优化就避免写if语句
 
@@ -518,7 +539,8 @@ std::cin.get();
 ```cpp
 #include <iostream>
 
-int main() {
+int main()
+{
     std::cin.get();  // 唯一保留的有效代码
     return 0;
 }
@@ -562,13 +584,16 @@ else
 ```
 
 ```c++
-else if ( ){
+else if ( )
+{
 	//
 }
 
 //实际上等效于
-else{
-	if ( ){
+else
+{
+	if ( )
+	{
 		//
 	}
 }
@@ -583,12 +608,11 @@ else{
 
 # 循环
 
-2025/4/8
-
 游戏循环 只要玩家还没有决定退出游戏 就需要对游戏状态更新 渲染 让角色持续保持移动状态 持续做所有的事情 一帧接一帧地
 
 ```c++
-for (int i = 0; i < 5; i++){
+for (int i = 0; i < 5; i++)
+{
 	Log("Hello World!");
 }
 ```
@@ -605,7 +629,8 @@ for 循环的3段声明
 ```c++
 int i = 0;
 bool condition = true;
-for ( ; condition; ){
+for ( ; condition; )
+{
 	Log("Hello World!");
 	i++;
 	if (!(i < 5))
@@ -617,7 +642,8 @@ for ( ; condition; ){
 
 ```c++
 int i = 0;
-while (i < 5){
+while (i < 5)
+{
 	Log("Hello World!");
 	i++;
 }
@@ -636,7 +662,8 @@ break 只能在循环中使用 跳出循环 终止循环
 return 可以使用在任何地方 直接退出函数
 
 ```c++
-for (int i = 0; i < 5; i++){
+for (int i = 0; i < 5; i++)
+{
     if ((i + 1) % 2 == 0)
         continue;
 	Log("Hello World!");
@@ -646,7 +673,8 @@ for (int i = 0; i < 5; i++){
 ```
 
 ```c++
-for (int i = 0; i < 5; i++){
+for (int i = 0; i < 5; i++)
+{
     if ((i + 1) % 2 == 0)
         break;
 	Log("Hello World!");
@@ -656,8 +684,10 @@ for (int i = 0; i < 5; i++){
 ```
 
 ```c++
-int main(){
-    for (int i = 0; i < 5; i++){
+int main()
+{
+    for (int i = 0; i < 5; i++)
+	{
         if ((i + 1) % 2 == 0)
             return 0;
         Log("Hello World!");
@@ -670,8 +700,6 @@ int main(){
 ```
 
 # 指针
-
-2025/4/13-4/15 文件丢失 重写
 
 对计算机来说 内存就是一切 所有的程序都会被加载到内存中 而指针对于管理和操纵内存非常重要
 
@@ -805,7 +833,8 @@ LOG(a); // #define LOG(x) std::cout << x << std::endl;
 
 ```c++
 //整型变量递增函数（无效）
-void Increment(int x){
+void Increment(int x)
+{
     x++;
 }
 ```
@@ -822,7 +851,8 @@ Increment(a);
 用指针把变量a的内存地址传递过去
 
 ```c++
-void Increment(int* x){
+void Increment(int* x)
+{
     (*x)++;
     //根据运算优先级 如果不加() 就是先算++ 对地址进行递增
     //而我们期待的是先对指针逆向引用 找到这个地址的那个变量的值 对这个值++
@@ -839,7 +869,8 @@ Increment(&a);
 用引用 就是把a复制给了函数里新的引用x x就只是a的别名
 
 ```c++
-void Increment(int& x){
+void Increment(int& x)
+{
     x++;
 }
 ```
@@ -869,8 +900,6 @@ ref = &b;
 ```
 
 # 类 class / struct
-
-2025/4/17
 
 **类并不会增添任何新的功能 可以用类搞定的事 不用类也一样搞得定 类只是语法糖**
 面向对象编程 类只是对数据和功能组合在一起的一种方法 **有数据和处理这些数据的函数** 可以更好地维护混乱的变量和函数 对其分组
@@ -911,7 +940,8 @@ public意味着可以在类之外的任何地方访问这些变量 我们暂时�
 现在我们希望让player移动 可以写一个单独的函数
 
 ```c++
-void Move(Player& player, int xa, int ya){
+void Move(Player& player, int xa, int ya)
+{
     //xa ya是在x轴 y轴上Player移动的距离
     player.x += xa * player.speed;
     player.y += ya * player.speed;
@@ -925,12 +955,14 @@ void Move(Player& player, int xa, int ya){
 但实际上类可以包含函数 我们可以把move函数移动到类中 **类内的函数被称为方法**
 
 ```c++
-class Player {
+class Player
+{
 public:
 	int x, y;
 	int speed;
 
-	void Move(int xa, int ya) {
+	void Move(int xa, int ya)
+    {
 		x += xa * speed;
 		y += ya * speed;
 	}
@@ -953,10 +985,12 @@ plain old data(POD) 一种**只表示变量的结构 不包含大量功能 倾�
 比如数学上的向量类
 
 ```c++
-struct Vec2{
+struct Vec2
+{
     float x, y;
     
-    void Add(const Vec2& other){
+    void Add(const Vec2& other)
+    {
         x += other.x;
         y += other.y;
     }
@@ -978,7 +1012,8 @@ struct Vec2{
 
 #include <iostream>
 
-class Log {
+class Log
+{
 public:
 	const int LogLevelError = 0; // Error级别
 	const int LogLevelWarning = 1; // Warning级别
@@ -991,26 +1026,31 @@ private:
 
 
 public:
-	void SetLevel(int level) { // 设置日志级别
+	void SetLevel(int level)
+    {	// 设置日志级别
 		m_LogLevel = level;
 	}
 	
-	void Error(const char* message) {
+	void Error(const char* message)
+    {
 		if (m_LogLevel >= LogLevelError)
 			std::cout << "[ERROR]: " << message << std::endl;
 	}
-	void Warn(const char* message) {
+	void Warn(const char* message)
+    {
 		if (m_LogLevel >= LogLevelWarning)
 			std::cout << "[WARNING]: " << message << std::endl;
 	}
-	void Info(const char* message) {
+	void Info(const char* message)
+    {
 		if (m_LogLevel >= LogLevelInfo)
 			std::cout << "[INFO]: " << message << std::endl;
 	}
 };
 
 
-int main() {
+int main()
+{
 	Log log;
 	log.SetLevel(log.LogLevelWarning);
 	log.Warn("Hello World");
@@ -1034,8 +1074,6 @@ int main() {
 
 ## 类或结构体外部的static
 
-2025/4/19
-
 **声明的静态函数或静态变量 只会在它被声明的cpp文件中被看到**
 
 <span id="mypoint_7"></span>`static int s_Variable = 5;` **s_前缀 约定这是一个静态变量** **这个变量只会在这个翻译单元内部链接** 它只对这个翻译单元可见 [前面讲链接的时候](#mypoint_6) 我们就提到过static 链接器不会在这个翻译单元的作用域之外 寻找那个符号定义
@@ -1051,7 +1089,8 @@ static int s_Variable = 5;
 
 int s_variable = 10;
 
-int main(){
+int main()
+{
     std::cout << s_varibale << std::endl;
     std::cin.get();
 }
@@ -1087,7 +1126,8 @@ extern int s_Variable;
 ```c++
 #include <iostream>
 
-struct Entity {
+struct Entity
+{
 	int x, y;
 	//这里选用结构体是因为希望x y是public
 
@@ -1096,7 +1136,8 @@ struct Entity {
 	}
 };
 
-int main() {
+int main()
+{
 
 	Entity e;
 	e.x = 2;
@@ -1163,7 +1204,8 @@ Entity::y = 8;
 现在我们让x y不再是静态的 改成普通的`int x, y;` 也删掉`int Entity::x;` `int Entity::y;` 也就是e和e1分别有自己的x y 再运行就会报错 **因为静态方法没有类实例** 实际上你在类中写的每个非静态方法总是获得当前类的一个实例作为参数 通过隐藏参数发挥作用 这是类在幕后的工作方式 我们暂时不谈 所以静态方法得不到那个隐藏参数 静态方法与在类外部编写方法是相同的 就像你在类的外面写
 
 ```c++
-static void Print() {
+static void Print()
+{
     std::cout << x << ", " << y << std::endl;
 }
 ```
@@ -1171,7 +1213,8 @@ static void Print() {
 它现在就完全不知道x y是什么 可以改成
 
 ```c++
-static void Print(Entity e) {
+static void Print(Entity e)
+{
     std::cout << e.x << ", " << e.y << std::endl;
 }
 ```
@@ -1179,7 +1222,8 @@ static void Print(Entity e) {
 这个方法 是非静态类方法在编译时的真实样子
 
 ```c++
-static void Print() {
+static void Print()
+{
     std::cout << e.x << ", " << e.y << std::endl;
 }
 ```
@@ -1196,7 +1240,8 @@ static void Print() {
 <span id="mypoint_9"></span>**静态局部变量 生存期基本上相当于整个程序的生存期 但作用域只在这个函数内** 但其实它不一定非要在函数里 你可以在任何作用域里声明它 这里只是用函数举例 也可以是if语句之类的 所以函数作用域的static和类作用域的static没有太大区别 生存期基本是相同的 但是在类的作用域中 类中的任何东西都可以访问这个静态变量 但在函数作用域声明一个静态变量 它将是那个函数的局部变量 对类来说也是局部变量
 
 ```c++
-void Function() {
+void Function()
+{
 	static int i = 0;
 }
 ```
@@ -1206,14 +1251,17 @@ void Function() {
 ```c++
 #include <iostream>
 
-void Function() {
+void Function()
+{
 	static int i = 0;
 	i++;
 }
 
-int main() {
+int main()
+{
 
-	for (int j = 0; j < 10; j++) {
+	for (int j = 0; j < 10; j++)
+    {
 		Function();
 	}
 	std::cin.get();
@@ -1231,11 +1279,13 @@ int main() {
 ```c++
 #include <iostream>
 
-class Singleton {
+class Singleton
+{
 private:
 	static Singleton* s_Instance; // 那个单例实例的指针
 public:
-	static Singleton& Get() { // 获取那个单例实例 返回的是引用
+	static Singleton& Get()
+    {	// 获取那个单例实例 返回的是引用
 		return *s_Instance;
 	}
 
@@ -1244,10 +1294,10 @@ public:
 
 Singleton* Singleton::s_Instance = nullptr; // 初始化单例实例的指针为nullptr
 
-int main() {
+int main()
+{
 
 	Singleton::Get().Hello(); // 单例实例调用了Hello方法
-
 
 	std::cin.get();
 }
@@ -1257,9 +1307,11 @@ int main() {
 如果使用局部静态 main函数不变 class Singleton会变成下面这样 功能是完全一样的
 
 ```c++
-class Singleton {
+class Singleton
+{
 public:
-	static Singleton& Get() {
+	static Singleton& Get()
+    {
 		static Singleton instance;
 		return instance;
 	}
@@ -1289,15 +1341,18 @@ public:
 ```c++
 #include <iostream>
 
-enum Example {
+enum Example
+{
 	A, B, C
 };
 
-int main() {
+int main()
+{
 
 	Example value = B; // 赋值必须是A B C中的一个
 
-	if (value == 1) { // 现在value等于B 就是1
+	if (value == 1)
+    {	// 现在value等于B 就是1
 		// Do something
 	}
 
@@ -1312,7 +1367,8 @@ int main() {
 枚举默认是32位int整型 但也可以指定类型 但必须是整型 不能是浮点数
 
 ```c++
-enum Example : unsigned char { // 8位整型
+enum Example : unsigned char
+{	// 8位整型
 	A = 5, B, C
 };
 ```
@@ -1323,7 +1379,8 @@ enum Example : unsigned char { // 8位整型
 
 ```c++
 public:
-    enum Level{
+    enum Level
+    {
         LevelError = 0, LevelWarning, LevelInfo
     };
 private:
@@ -1339,8 +1396,6 @@ private:
 //	int m_LogLevel = LogLevelInfo;
 ```
 
-2025/4/24
-
 倾向于显式地写成=0 虽然它默认就是=0 仅仅为了提高代码可读性
 使用Level就可以把m_LogLevel限制在枚举的那几个数字中 本例中就只能是0 1 2 后面涉及到level的也都要改成Level类而不是int
 
@@ -1351,16 +1406,19 @@ private:
 # 构造函数
 
 ```c++
-class Entity{
+class Entity
+{
 public:
     float X, Y;
     
-    void Print(){
+    void Print()
+    {
         std::cout << X << ", " << Y << std::endl;
     }
 };
 
-int main(){
+int main()
+{
     Entity e;
     e.Print();
     std::cin.get();
@@ -1374,17 +1432,20 @@ X是public的 如果在主函数里直接用`std::cout << X << std::endl;`输出
 因此需要初始化
 
 ```c++
-class Entity{
+class Entity
+{
 public:
     float X, Y;
     
-    void Init(){
+    void Init()
+    {
         x = 0.0f;
         Y = 0.0f;
     }
     
     
-    void Print(){
+    void Print()
+    {
         std::cout << X << ", " << Y << std::endl;
     }
 };
@@ -1402,16 +1463,19 @@ int main(){
 构造函数是每次构造一个对象时都会调用的方法 **实例化时被调用 如果不实例化 就不会运行** 没有返回类型 名称必须与类的名称相同 可以有参数 也可以是完全空白
 
 ```c++
-class Entity{
+class Entity
+{
 public:
     float X, Y;
     
-    Entity(){
+    Entity()
+    {
         X = 0.0f;
         Y = 0.0f;
     } // 不再需要init方法了
     
-    void Print(){
+    void Print()
+    {
         std::cout << X << ", " << Y << std::endl;
     }
 };
@@ -1431,7 +1495,8 @@ Entity(){
 在类里可以写很多构造函数 当然参数需要是不一样的 这叫**函数重载 即有相同的函数/方法名 但有不同参数的不同函数版本**
 
 ```c++
-Entity(float x, float y){
+Entity(float x, float y)
+{
     X = x;
     Y = y;
 }
@@ -1448,7 +1513,8 @@ class Log{
 private:
     Log() = delete; // 构造函数被删除了
 public:
-	static void Write(){
+	static void Write()
+    {
         
     }
 }
@@ -1467,21 +1533,25 @@ public:
 如果是栈对象 作用域结束时 栈对象将被删除 这时 析构函数也会被调用
 
 ```c++
-class Entity{
+class Entity
+{
 public:
     float X, Y;
     
-    Entity(){
+    Entity()
+    {
         X = 0.0f;
         Y = 0.0f;
         std::cout << "Created Entity!" << std::endl;
     }
     
-    ~Entity(){
+    ~Entity()
+    {
         std::cout << "Destoryed Entity!" << std::endl;
     }
     
-    void Print(){
+    void Print()
+    {
         std::cout << X << ", " << Y << std::endl;
     }
 };
@@ -1500,11 +1570,13 @@ int main(){
 只有主函数退出时 析构函数才会被调用 所以也看不到析构函数打印的那句话 都放到函数里
 
 ```c++
-class Entity{
-    // 不再复制
+class Entity
+{
+    // 和上面的一样 不再复制
 }
 
-void Function(){
+void Function()
+{
     Entity e;
     e.Print();
 }
@@ -1533,21 +1605,25 @@ int main(){
 比如游戏中 每一个实体都有自己的位置
 
 ```c++
-class Entity{
+class Entity
+{
 public:
     float X, Y;
     
-    void Move(float xa, float ya){
+    void Move(float xa, float ya)
+    {
         X += xa;
         Y += ya;
     }
 };
 
-class Player : public Entity{
+class Player : public Entity
+{
 public:
     const char* Name;
     
-    void PrintName(){
+    void PrintName()
+    {
         std::cout << Name << std::endl;
     }
 };
@@ -1564,12 +1640,14 @@ public:
 B是A的子类 如果在A类中创建一个方法 标记为vitual 就可以在B类中重写这个方法
 
 ```c++
-class Entity{
+class Entity
+{
 public:
     std::string GetName() { return "Entity"; }
 };
 
-class Player : public Entity{
+class Player : public Entity
+{
 private:
     std::string m_Name;
 public:
@@ -1579,7 +1657,8 @@ public:
     std::string GetName() { return m_Name; }
 }
 
-int main(){
+int main()
+{
     Entity* e = new Entity();
     std::cout << e->GetName() << std::endl;
     
@@ -1601,11 +1680,12 @@ int main(){
    等效于 先默认构造 再赋值
 
     ```c++
-    Player(const std::string& name) {
+    Player(const std::string& name)
+    {
         m_Name = name;
     }
     ```
-
+   
 2. `Entity* e = new Entity();`
    new Entity()会在堆上动态分配一个Entity对象 并返回其内存地址/指针 因此必须用指针变量Entity*来接收
    堆上动态分配 `Entity* e = new Entity();`搭配`e->GetName();`
@@ -1613,8 +1693,6 @@ int main(){
 3. `->`是指针访问成员的语法糖 `e->GetName()`等效于`(*e).GetName()`
 4. `Entity* entity = p;`
    p是Player类型的指针 把它赋值给了Entity类型的指针entity 是基类指针直接指向派生类对象 这是安全的 称为向上转型 Player对象的内存布局中包含Entity的基类部分
-
-2025/4/29
 
 目前这段代码会输出
 
@@ -1630,12 +1708,14 @@ Entity //并不是123
 但我们希望C++能知道这个Entity实际上是Player 让它调用Player的GetName 因此需要虚函数 Dynamic Dispatch 动态联编 通过v表/虚函数表来实现编译 v表就是一个表 包含基类中所有虚函数的映射 这样就可以在运行时 将它们映射到正确的覆写/override函数 如果想覆写一个函数 就必须**将基类中的基函数标记为虚函数 在前面加上virtual 将覆写函数标记为关键字override** 只有虚函数才能被overrdie
 
 ```c++
-class Entity{
+class Entity
+{
 public:
     virtual std::string GetName() { return "Entity"; } // 修改了
 };
 
-class Player : public Entity{
+class Player : public Entity
+{
 private:
     std::string m_Name;
 public:
@@ -1697,12 +1777,14 @@ public:
 接口类只包含未实现的方法 所以基本上不能实例化
 
 ```c++
-class Entity{
+class Entity
+{
 public:
     virtual std::string GetName() = 0; //修改了
 };
 
-class Player : public Entity{
+class Player : public Entity
+{
 private:
     std::string m_Name;
 public:
@@ -1720,19 +1802,22 @@ public:
 现在这样不能实例化Entity 现在Player里实现了GetName 所以还可以实例化 如果没有实现 Player也不能实例化
 
 ```c++
-class Printable{
+class Printable
+{
 public:
 	virtual std::string GetClassName() = 0;
 };
 
-class Entity : public Printable{
-    // 要让Entity实现GetClassName()
+class Entity : public Printable
+{
+// 要让Entity实现GetClassName()
 public:
     virtual std::string GetName() { return "Entity"; }
     std::string GetClassName() override { return "Entity"; }
 }
 
-class Player : public Entity{
+class Player : public Entity
+{
 private:
     std::string m_Name;
 public:
@@ -1744,7 +1829,8 @@ public:
     std::string GetClassName() override { return "Player"; }
 }
 
-void Print(Printable* obj){
+void Print(Printable* obj)
+{
     std::cout << obj->GetClassName() << std::endl;
 }
 ```
@@ -1826,17 +1912,17 @@ delete[] another;
 
 这两种创建的含义是一样的 但是生存期不同 栈创建离开作用域就会被销毁 堆创建在我们手动销毁时才会消失 必须用delete删除 因为是用数组操作符`[]`分配的 所以也要用它删除
 
-最大的差异就是生存期 这样比如某个函数返回的是在这个函数中创建的数组 其实就是返回了指针 就必须用堆创建 返回的地址才有效 也可以联想到使用[局部static](#mypoint_9) 静态变量不会在函数返回后被销毁 避免了悬空指针 但是比如
+<span id="mypoint_11"></span>最大的差异就是生存期 比如某个函数返回的是在这个函数中创建的数组 其实就是**返回了指针 就必须用堆创建 返回的地址才有效** 也可以联想到使用[局部static](#mypoint_9) 静态变量不会在函数返回后被销毁 避免了**悬空指针** 但是比如
 
 ```cpp
-int* badExample() {
+int* badExample()
+{
     int x = 10;
     return &x; // 
 }
 ```
 
-返回栈变量的地址 离开函数后x被销毁 指针失效
-改成`static int x = 10;`
+返回栈变量的地址 离开函数后x被销毁 指针失效 如果改成`static int x = 10;`
 
 - 共享状态：
 
@@ -1844,7 +1930,7 @@ int* badExample() {
 
   ```c++
   int* p1 = badExample(); // p1 指向的 x = 10
-  *p1 = 20;              // 修改 x 的值为 20
+  *p1 = 20;              	// 修改 x 的值为 20
   int* p2 = badExample(); // p2 也指向 x，此时 x = 20
   ```
 
@@ -1857,17 +1943,20 @@ int* badExample() {
 堆内存还有**间接寻址**
 
 ```c++
-class Entity{
+class Entity
+{
 public:
 	int example[5];
 	
-    Entity(){
+    Entity()
+    {
         for(int i=0; i<5; i++)
             example[i] = i;
     }
 };
 
-int main(){
+int main()
+{
     Entity e;
     
     std::cin.get();
@@ -1879,11 +1968,13 @@ int main(){
 改成堆创建
 
 ```c++
-class Entity{
+class Entity
+{
 public:
 	int* example = new int[5];
 	
-    Entity(){
+    Entity()
+    {
         for(int i=0; i<5; i++)
             example[i] = i;
     }
@@ -2106,7 +2197,8 @@ bool contains = name.find("lo") != std::string::npos;
 - 把字符串传给其它函数 
 
 ```c++
-void PrintString(std::string string){
+void PrintString(std::string string)
+{
     string += "h";
     std::cout << string << std::endl;
 }
@@ -2115,82 +2207,1664 @@ void PrintString(std::string string){
 传的不是引用 只不过是把传入的string复制到了函数里 不会影响到传递的原始string 但是字符串的复制是很浪费时间的 所以即使实现的功能是通过只读就能完成 也尽量通过常量引用传递
 
 ```                                                                                                   c++
-void PrintString(const std::string& string){
+void PrintString(const std::string& string)
+{
     string += "h";
     std::cout << string << std::endl;
 }
 ```
 
-**const T& 常量引用是引用 所以不用复制 const表示我们不会修改它 是只读访问** 在大型对象适用 而对于内置类型如int double 复制成本低 直接传值会更高效 暂时不过多讨论
+<span id="mypoint_10"></span>**const T& 常量引用是引用 所以不用复制 const表示我们不会修改它 是只读访问** 在大型对象适用 而对于内置类型如int double 复制成本低 直接传值会更高效 暂时不过多讨论
 
+# CONST
 
+有点像类和结构体的可见性 是一个承诺 承诺一些东西是不变的 是常量不是变量
 
+```c++
+const int MAX_AGE = 90;
 
+const int* a = new int;
 
+a = &MAX_AGE; // 合法
+*a = 2; // 不合法
 
+// int* const a = new int;
+//
+// a = &MAX_AGE; // 不合法
+// *a = 2; // 合法
+```
 
+1. `const int* a`或者`int const* a`
+   const在\*左边 表示指针指向的内容是常量 而指针本身可变
+   表示**a是一个指向常量int的指针 指针a本身不是常量 因此可以重新指向其他地址 但\*a是常量 无法对\*a进行修改**
 
+2. `int* const a`
+   const在\*右边 表示指针本身是常量 不能改变指向的地址 但指向的内容可以修改
+   表示**int型指针a是一个常量 指针指向的地址是不能改变的 但是可以修改指针指向的内容 a是常量 \*a不是常量**
 
+3. `const int* const a`
+   两个const分别修饰指针和内容 两者都不可变
+   表示a是一个指向常量int的常量指针 不能修改指针指向的内容 也不能修改指针指向的地址
 
-
-
-
-在这里补充栈与堆的差异
-
-- 栈（Stack）
-
-  - 自动管理：由编译器自动分配和释放 比如函数中的局部变量 函数参数
-  - 快速操作：分配和释放仅需移动栈指针 效率极高
-  - 固定大小：栈内存大小有限 超出会导致栈溢出
-  - 生命周期：变量在作用域结束时自动销毁
-
-- 堆（Heap）
-
-  - 手动管理：需显式分配（new/malloc）和释放（delete/free） 忘记释放会导致内存泄漏
-  - 灵活容量：可用内存取决于系统可用资源 通常远大于栈
-  - 较慢操作：分配需查找可用内存块 释放需处理碎片 效率较低
-  - 生命周期：对象生命周期由程序员控制 可跨作用域存在 
-
-- 现代C++的最佳实践
-
-  - 避免裸指针：使用智能指针（`std::unique_ptr`/`std::shared_ptr`）自动管理堆内存。
-  - 优先选择栈：默认使用栈 除非有明确需求必须用堆
-  - 容器类优化：标准库容器（如`std::vector`）内部使用堆内存 但对外提供栈式接口 简化使用
-
-- 常见问题
-
-  - 栈溢出：
-
-    ```cpp
-    void crash() {
-        int hugeArray[1000000];
+```c++
+class Entity
+{
+private:
+    int m_X, m_Y;
+public:
+    int GetX() const
+    {
+        m_X= 2; // 不合法
+        return m_X;
     }
-    ```
+};
+```
 
-    应改用堆分配 `std::vector<int> hugeArray(1000000);`
+在类的方法名之后const 意思是这个方法不会修改任何实际的类
+
+```c++
+class Entity
+{
+private:
+    int* m_X, m_Y; // m_X是指针 m_Y是int 不是指针
+    int* m_X, *m_Y; // m_X m_Y都是指针
+public:
+    const int* const GetX() const
+    {
+        // GetX()返回的东西是 指向常量int的常量指针
+        // 同时GetX()方法不会对类进行修改
+        return m_X;
+    }
+};
+```
+
+后缀const的方法是只读 使用的时候可以传[常量引用](#mypoint_10) 就不用复制
+
+```c++
+void PrintEntity(const Entity* e)
+{
+    // e现在是一个指向常量Entity的指针
+    // 可以修改指针指向的地址 但不能修改它指向的内容 也就是*e
+    e = nullptr; // 合法
+    std::cout << e.GetX() << std::endl;
+}
+
+// 如果通过常量引用传参 也是一样
+void PrintEntity(const Entity& e)
+{
+    // e是一个引用
+    // 写e=XXX 并不能修改它指向的内容
+    // 因为引用只能在创建的时候初始化指定
+    // 并不能后续修改它指向的内容
+    // e=XXX 就只是在修改e指向的那个东西
+    // 也就实际上等同于是在修改指针指向的内容
+    // 既然声明了它指向的东西是const 就不能修改
+    e = Entity(); // 不合法 不能修改它的内容
+    std::cout << e.GetX() << std::endl;
+}
+```
+
+```c++
+class Entity
+{
+private:
+    int m_X, m_Y;
+public:
+    int GetX() const
+    {
+        return m_X;
+    }
+};
+
+void PrintEntity(const Entity& e)
+{
+    std::cout << e.GetX() << std::endl;
+}
+```
+
+如果GetX()不后缀const 在PrintEntity里就不能调用GetX() 因为GetX已经不能保证它不会修改Entity（该方法中也就是e） 我没有直接修改e 但我调用一个可以修改e的方法 这也不允许 所以要把方法标记为const
+
+所以可以写两个版本的GetX()
+
+```c++
+class Entity
+{
+private:
+    int m_X, m_Y;
+public:
+    int GetX() const
+    {
+        return m_X;
+    }
     
-  - 内存泄漏：
-  
-    ```cpp
-    void leak() {
-        int* p = new int(10);
-        // 忘记 delete p;
+    int GetX()
+    {
+    	return m_X;
     }
-    ```
-  
-    使用智能指针或RAII（资源获取即初始化）模式
-  
-- 如何选择栈还是堆？
+};
+```
 
-  - 默认用栈：适用于小型、短生命周期的数据
-  - 必须用堆：
-    - 对象太大（超出栈容量）
-    - 生命周期需要跨作用域
-    - 动态大小（如运行时决定数组长度）
+PrintEntity就会默认使用GetX的const版本
+
+所以**如果实际上你的方法没有修改类 或者它们不应该修改类 要总是标记这个方法为const** 这样常量引用才能使用你的方法
+
+```c++
+class Entity
+{
+private:
+    int m_X, m_Y;
+    mutable int var;
+public:
+    int GetX() const
+    {
+        var = 2;
+        return m_X;
+    }
+};
+```
+
+我们现在在const方法里修改了类成员变量 因为var是mutable
+
+**mutable允许函数是常量方法 但可以修改变量** 基本上在类成员中这样使用 就是它唯一的用法了
+
+也可以用在lambda中
+
+```c++
+int main()
+{
+    int x = 8;
+	auto f = []()
+    {
+    	std::cout << "Hello" << std::endl;
+	}
+    
+    f();
+}
+```
+
+lambda基本上就像一个一次性的小函数 可以写出来并赋值给一个变量 可以像调用函数一样使用它
+
+lambda表达式 匿名函数 []是lambda的捕获列表 用于控制lambda如何访问外部作用域的变量
+
+```c++
+auto f = [捕获列表](参数列表) { 函数体 };
+```
+
+1. [x] 值捕获
+   将外部变量x的值复制到lambda中 在lambda内部修改的是副本 不影响外部变量
+2. [&x] 引用捕获
+   通过引用捕获外部变量x 在lambda内部修改的是原始变量
+3. [=] 默认值捕获
+   捕获所有外部变量的副本 适用于需要读取外部变量但不想修改它们的场景
+4. [&] 默认引用捕获
+   捕获所有外部变量的引用 适用于需要修改外部变量的场景
+
+```c++
+int main()
+{
+    int x = 8;
+	auto f = [=]()
+    {
+        // x++; 直接这样修改是错的 因为在lambda里的是副本 默认是const 修改不了
+        int y = x;
+        y++;
+    	std::cout << y << std::endl;
+	}
+    f();
+}
+```
+
+但是这样写也比较麻烦 **改用mutable 就可以修改了 但在lambda之外 x仍然是原来的值 因为不是引用传递的**
+
+```c++
+auto f = [=]() mutable
+{
+    x++;
+    std::cout << x << std::endl;
+}
+```
+
+其实这也很不常用 基本上mutable就是在const里用的
+
+# 构造函数初始化列表
+
+这是在构造函数中初始化类成员变量的一种方式
+
+```c++
+class Entity
+{
+private:
+    std::string m_Name;
+public:
+    Entity()
+    {
+        m_Name = "Unknown";
+    }
+    Entity(const std::string& name)
+    {
+        m_Name = name;
+    }
+};
+```
+
+这是我们平时用的初始化方法
+
+但是C++还有另一种方法
+
+```c++
+class Entity
+{
+private:
+    std::string m_Name;
+    int m_Score;
+public:
+    Entity()
+        : m_Name("Unknown"), m_Score(0)
+    {
+        
+    }
+    Entity(const std::string& name)
+        : m_Name(name), m_Score(0);
+    {
+        
+    }
+    // 也都可以不缩进 写成比如
+    // Entity() : m_Name("Unknown"), m_Score(0); {}
+};
+```
+
+**初始化列表要按类成员变量声明的顺序写**
+
+**应该永远到处使用初始化列表去初始化**
+
+# 三元操作符
+
+只是if语句的语法糖
+
+```c++
+static int s_Level = 1;
+static int s_Speed = 2;
+
+int main()
+{
+    if (s_Level > 5)
+        s_Speed = 10;
+    else
+        s_Speed = 5;
+    
+    // 更易读的做法 为了避免考虑优先级 用括号吧
+    s_Speed = (s_Level > 5 && s_Level < 100) ? 10 : 5;
+    
+    std::string rank = s_Level > 10 ? "Master" : "Beginner";
+    
+    std::cin.get();
+}
+```
+
+# 创建并初始化C++对象
+
+```c++
+using String = std::string;
+// 这样就不用到处写std::string 直接写String 因为不想用std命名空间
+
+class Entity
+{
+private:
+    String m_Name;
+public:
+    Entity() : m_Name("Unknown") {}
+    Entity(const String& name) : m_Name(name) {}
+    
+    const String& GetName() const
+    {
+        return m_Name;
+    }
+};
+
+int main()
+{
+    Entity e1; // 在栈上创建
+    // 这时e1已经用默认构造函数初始化了 并不是没有初始化
+    Entity e2("123");
+    
+    std::cin.get();
+}
+```
+
+`Entity e2 = Entity("123");` 拷贝初始化
+使用=进行初始化 语法上会先构造一个临时对象 再通过拷贝/移动构造函数初始化目标对象 C++17开始 编译器会强制省略临时对象的拷贝 称为拷贝省略 直接构造目标对象
+
+`Entity e2("123");` 直接初始化 **优先使用**
+使用括号参数列表直接调用构造函数 没有中间临时对象的拷贝步骤
+
+栈创建 在作用域结束就销毁 但是作用域不止是函数 有{}就算
+
+而且如果会创建很多对象 栈太小了 不够存储
+
+```c++
+int main()
+{
+    Entity* e = new Entity("123"); // 堆创建
+    std::cout << (*e).GetName() << std::endl;
+    delete e;
+    std::cin.get();
+}
+```
+
+`Entity* e = new Entity("123");`
+`new Entity`会返回一个指针 是这个Entity在堆上被分配的内存地址 所以要用`Entity *`
+但是这是Java/C#风格 虽然C++也可以这样写 但是你也要负责释放这些内存 `delete e;`
+C# 即使用的是new关键字 所有的类都是在栈上分配
+Java 所有东西都在堆上
+**不能到处使用new**
+
+因为e现在是指针 在调用函数时 就要用`(*e).GetName()` 或者`e->GetName()` 这个`->`箭头运算符暂时不讨论
+
+如果要创建的对象很大 或者希望显式地控制对象生存期 就用堆创建 否则用栈创建 **尽量用栈** 或者用智能指针 暂时不讨论
+
+# new
+
+写C++就应该关心内存 性能 优化问题
+
+new的主要目的是在堆上分配内存
+
+写一个new int 需要4个字节的内存 就需要寻找4个字节内存的连续块 但并不是一行一行搜索内存看有没有4字节连续内存   而是有空闲列表 会维护那些有空闲字节的地址 暂时不过多讨论 如果找到了 它就返回一个指向这个内存的指针 这样就可以开始使用了
+
+```c++
+int a = 2;
+int* b = new int;
+int* c = new int[10]; // 10个元素的数组 40字节
+
+Entity* e1 = new Entity(); // 已经默认构造函数初始化
+Entity* e2 = new Entity[10]; // Entity型的数组
+
+delete e1;
+delete[] e2;
+```
+
+- `Entity* e = new Entity();` 值初始化 **优先使用**
+  类的成员变量中
+  内置类型比如int float 指针等 会**零初始化**
+  类类型比如std::string 会调用默认构造函数
+
+- `Entity* e = new Entity;` 默认初始化
+  类的成员变量中 内置类型不初始化 随机垃圾值
+  类类型比如std::string 会调用默认构造函数
+
+`Entity* e = new Entity[10];` 看看Entity类有多大 因为是数组 再×10 需要这么多内存 连续分配10个Entity 然后调用初始函数
+
+new其实是一个操作符 就像 + - = 所以可以重载这个操作符 其实只是类似一个函数 分配一定大小的内存 然后返回空指针 `void*` 一个没有类型的指针 指针只是一个内存地址 指针之所以需要类型 是因为你需要类型才操纵它 知道需要从这个地址开始读取多长的内存 但其实指针只是一个内存地址 一个数字 所以可以根本不需要什么类型 
+
+通常 调用new会调用隐藏在里面的C函数malloc 相当于我们写了 `Entity* e = (Entity*)malloc(sizeof(Entity))` 用malloc分配了一个sizeof(Entity)大小的内存 返回void指针 再转换为Entity类型 但是和`Entity* e = new Entity[10];`的区别就是 使用new会调用Entity构造函数 而malloc只是分配内存 **还是优先使用new**
+
+使用new 要记得使用delete 其实这也是一个操作符 调用的C函数free 释放malloc申请的内存
+
+new之后 内存没有被释放 不会被放回空闲列表 不能再被new调用后再分配 直到我们调用delete 必须手动操作
+
+placement new
+没有真正分配内存 而是你决定了内存来自哪里 只需要调用构造函数 并在一个特定的内存地址中初始化你的Entity
+
+```c++
+int* d = new int[200];
+Entity* e = new(d) Entity();
+```
+
+# 隐式构造函数 隐式转换
+
+隐式 不会明确地告诉它要做什么 C++允许编译器对代码执行一次隐式转换 如果我们一开始有一个数据类型 然后有另一个类型 在两者之间 C++允许隐式进行转换 而不需要cast做强制转换 cast暂时不讨论 cast类型转换是将数据类型转换为另一个类型的过程
+
+```c++
+class Entity
+{
+private:
+    std::string m_Name;
+    int m_Age;
+public:
+    Entity(const std::string& name)
+        : m_Name(name), m_Age(-1) {} //设置为-1 说明它是有效的
+    
+    Entity(int age)
+        : m_Name("Unknown"), m_Age(age) {}
+};
+
+int main()
+{
+    Entity a("123"); // 姓名
+    Entity b(22); // 年龄
+    std::cin.get();
+}
+```
+
+上面的一切都很正常 是我们平时做的 但如果你写
+
+```c++
+Entity a = "123";
+Entity b = 22;
+```
+
+这就是隐式转换 或者隐式构造函数 隐式地将22转换成一个Entity 构造出一个Entity 
+
+```c++
+void PrintEntity(const Entity& entity)
+{
+    // print something
+}
+
+int main(){
+    PrintEntity(22);
+}
+```
+
+这也合法 因为C++认为22可以转换为一个Entity 调用`Entity(int age)`这个构造函数
+
+```c++
+int main()
+{
+    PrintEntity("123");
+}
+```
+
+这不合法 因为"123"不是std::string 这是一个const char[4]数组
+
+但你可以转换
+`using namespace std::string_literals;` 然后写`PrintEntity("123"s);` 或者`PrintEntity(st::string("123"));`
+
+或者写`PrintEntity(Entity("123"));`
+`PrintEntity()`没有做隐式转换 只是把创建初始化Entity和执行函数放在了一起 但是`Entity("123")`做了隐式转换 将字符串转换成了std::string标准字符串
+
+不会倾向于写成`Entity b = 22;` `PrintEntity(22);`这种感觉 因为看起来过于maigic 还是写成`Entity b(22);` `PrintEntity(Entity(22));`
+
+**explict放在构造函数前面 意味着没有隐式转换 必须显式使用构造函数**
+
+```c++
+class Entity
+{
+private:
+    std::string m_Name;
+    int m_Age;
+public:
+    Entity(const std::string& name)
+        : m_Name(name), m_Age(-1) {}
+    
+    explicit Entity(int age)
+        : m_Name("Unknown"), m_Age(age) {}
+};
+
+int main()
+{
+    Entity a = "123";
+    Entity b = 22; // 于是这个就不合法了
+    std::cin.get();
+}
+```
+
+# 运算符重载
+
+运算符 代替函数做事的符号 不只是数学运算符
+比如\*(逆向引用) -> += &(取地址) <<(cout的那个) new delete , () []
+
+重载 给运算符重载赋予新的含义 或者添加参数 或者创建 允许在程序中定义或更改运算符的行为 运算符应该减少使用重载 只应该在完全有意义的情况下
+
+运算符就是函数 不用给出函数名 只需要符号
+
+```c++
+struct Vector2
+{
+    float x, y;
+    
+    Vector2(float x, float y)
+        : x(x), y(y) {}
+    
+    Vector2 Add(const Vector2& other) const
+    {
+    	return Vector2(x*other.x, y*other.y);
+}
+
+	Vector2 operator+(const Vector2& other) const
+    {
+    	return Add(other);
+}
+    
+    Vector2 Multiply(const Vector2& other) const
+    {
+        return Vector2(x*other.x, y*other.y);
+    }
+    
+    Vector2 operator*(const Vector2& other) const
+    {
+    	return Multiply(other);
+	}
+    
+//     bool operator==(const Vector2& other1, const Vector2& other2)
+//    {
+//         return other1.x==other2.x && other1.y==other2.y;
+//     }
+// 我自己最开始写成了上面这样 但这显然根本不是一个类的方法的风格！ 只是函数 完全没习惯啊
+	bool operator==(const Vector2& other)
+    {
+		return x==other.x && y==other.y;
+	}
+    
+	bool operator!=(const Vector2& other)
+    {
+		return !(*this == other);
+	}
+    
+};
+
+std::ostream& operator<<(std::ostream& stream, const Vector2& other)
+{
+// 这是我们要重载的运算符<<的最初定义
+// std::ostream& stream 接收的是std::cout
+    stream << other.x << ", " << other.y;
+    // other.x是浮点数 stream是知道如何打印浮点数的 所以不用对浮点数也进行重载
+    return stream;
+    // 要返回对stream的引用 因为流对象不可复制 必须使用引用传递
+}
+
+int main()
+{
+    Vector2 position(4.0f, 4.0f);
+    Vector2 speed(0.5f, 1.5f);
+    Vector2 powerup(1.1f, 1.1f); // 提升速度用
+    
+    Vector2 result1 = position.Add(speed.Multiply(powerup));
+    Vector2 result2 = position + speed*powerup;
+    // 这两个是一样的含义
+    
+    if(result1 == result2)
+    {
+        // do something
+    }
+    
+    std::cout << result2 << std::endl;
+}
+```
+
+也可以写成下面这样 只是代码风格的差异
+
+```c++
+Vector2 operator+(const Vector2& other) const
+{
+    return Vector2(x*other.x, y*other.y);
+}
+
+Vector2 Add(const Vector2& other) const
+{
+    return *this + other;
+}
+```
+
+`*this` 关于this我们暂时先不讨论
+
+this在本例中是一个const指针 逆向引用后就是一个Vector2对象 然后与other相加
+
+```c++
+std::cout << result2 << std::endl;
+```
+
+`<<`运算符 左边是cout类 右边是某种类型 直接这样写就不合法 `<<`运算符接收两个参数 一个是输出流 即cout 另一个是Vector2 这个运算符是不懂得如何打印Vector2类型的 所以必须重载
+
+`stream << other.x << ", " << other.y;`
+如果接收的stream是cout 就是逐个打印`other.x` `, ` `other.y` 从左到右依次处理每个<<操作
+
+如果调用<<运算符
+也就是`std::cout << result2 << std::endl;` 其中result2是一个Vector2
+那么就是<<接收std::cout和result2为参数 按照重载之后的去做 即 逐个打印`result2.x` `, ` `result2.y` 最后再打印endl 即插入换行符\n 并刷新输出缓冲区
+
+**最好的办法是把运算符和有相同功能的函数都实现出来 使用的人可以自行选择**
+
+# this
+
+this可以用于访问类的成员函数 或者叫方法 在方法内部 可以使用**this 是指向当前对象实例的指针** 该方法属于这个对象实例
+
+```c++
+class Entity
+{
+public:
+    int x, y;
+    
+    Entity(int x, int y)
+        : x(x), y(y)
+};
+```
+
+如果不想用初始化列表 就会发现问题
+
+```c++
+void PrintEntity1(const Entity& e)
+{
+    // do something
+}
+
+void PrintEntity2(Entity* e)
+{
+    // do something
+}
+
+class Entity{
+public:
+    int x, y;
+    
+    Entity(int x, int y)
+    {
+        // x = x;
+        // y = y;
+        // 绝对没有办法像上面这样不明所以地写
+        this->x = x;
+        // 或者
+        // (*this).x = x;
+        this->y = y;
+        
+        PrintEntity1(this);
+        PrintEntity2(*this);
+        
+    }
+    
+    int GetX() const
+    {
+        return x;
+    }
+};
+```
+
+this的类型就是`Entity*` 但如果鼠标悬停在this上 会发现它的类型是`Entity* const` const的意思是this是一个常量指针 指针指向的地址不会改变 但是指向的东西可以改变
+
+如果想在类的内部调用一个类外部的函数 这个函数将Entity作为参数 就可以直接传入this
+
+非const方法中 可以将this赋值给`Entity& e = *this` const方法中可以将this赋值给`const Entity& e = *this`
+
+不要`delete this;` 这之后就再也不能访问类的成员数据
+
+# 栈作用域生存期
+
+进入一个作用域 就是在push栈帧 不一定非得是将数据push进栈帧 
+
+if for while作用域 空{}作用域 类作用域
+
+```c++
+class Entity
+{
+private:
+	int x;
+};
+```
+
+当这个类消失时 变量也会消失
+
+在作用域内栈创建类的实例对象 会调用构造函数 在`}`那行会调用析构函数
+
+要避免[悬空指针](#mypoint_11)
+
+作用域指针
+是指针的包装器 在构造时用堆分配指针 在析构时删除指针
+
+```c++
+class ScopedPtr
+{
+private:
+    Entity* m_Ptr;
+public:
+    ScopedPtr(Entity* ptr)
+        : m_Ptr(ptr) {}
+    ~ScopedPtr(){
+        delete m_Ptr;
+    }
+};
+
+int main()
+{
+    
+    {
+        // Entity* e = new Entity(); 原来是这样创建的 之后再手动删除
+        // ScopedPtr e(new Entity()); 利用构造函数
+        ScopedPtr e = new Entity();
+        //这种是隐式转换写法 将Entity*对象转换为ScopedPtr对象 但是用这种写法就和之前看起来差不多
+    }
+    
+}
+```
+
+只要离开作用域 e就会被销毁 因为实际上是在栈上分配的 new Entity()确实是在堆上分配 但是ScopedPtr的构造函数接收这个堆指针 又通过析构函数负责释放它
+
+# 智能指针
+
+可以取代new和delete
+
+unique_ptr 因为不能复制unique_ptr 如果复制了就会有两个指针指向同一个内存块 如果有一个被销毁了 另一个就会变成指向已经释放了的内存
+
+```c++
+#include <memory>
+
+class Entity
+{
+public:
+    Entity()
+    {
+        //
+    }
+    
+    ~Entity()
+    {
+        //
+    }
+    
+    void Print()
+    {
+        //
+    }
+    
+};
+
+int main()
+{
+    
+    {
+        std::unique_ptr<Entity> e1(new Entity());
+        std::unique_ptr<Entity> e2 = std::make_unique<Entity>();
+        // 不能写
+        // std::unique_ptr<Entity> e = new Entity();
+        // 因为unique_ptr的构造函数是explicit 不能隐式转换
+        e2->Print();
+        
+    }
+    
+}
+```
+
+1. `std::unique_ptr<Entity> e1(new Entity());`
+2. `std::unique_ptr<Entity> e2 = std::make_unique<Entity>();`
+
+优先第二种写法 为了异常安全
+
+这个智能指针就像一个普通的Entity型指针那样使用 作用域结束时 Entity会被自动销毁 这个智能指针只是一个栈分配对象 作用域结束它会自动调用delete
+
+`std::unique_ptr<Entity> e0 = e1;` 智能指针不能复制 所以这样写就不合法
+
+shared_ptr 引用计数 可以跟踪你的指针有多少个引用 一旦引用计数达到0 它就被删除了
+
+- `std::shared_ptr<Entity> sharedE1 = std::make_shared<Entity>();`
+
+`std::shared_ptr<Entity> sharedE2(new Entity());` 不能用这种写法 因为shared_ptr需要分配另一块内存 叫做控制块 用来存储引用计数 如果你已经分配好了一块new Entity 再传递给shared_ptr的构造函数 它就一共要做两次内存分配 先是new Entity的分配 又要分配shared_ptr的控制内存块 但如果用make_shared 就能把这两件事组合起来 而且**既然已经利用智能指针舍弃了new和delete 就不要再出现 但实际上它并没有真正取代new和delete**
+
+shared_ptr可以复制 `std::shared_ptr<Entity> sharedE3 = sharedE2;`
+
+weak_ptr 和shared_ptr一样可以复制 但是不会增加引用计数 比如你根本不想使用Entity 你只是在排序一个Entity列表 你不关心它们是否有效 只需要存储它们的一个引用
+
+# 拷贝与拷贝构造函数
+
+不必要的复制是不好的
+
+```c++
+int a = 2;
+
+int b = a;
+```
+
+a和b是不同的内存 复制的是值 修改b之后 a不会发生改变 但如果a b是指针复制 就会影响 复制指针也只不过是在复制内存地址的数字 
+
+引用是不能赋值的 只能一开始的时候初始化 所以只要写`=` 就是发生了赋值 复制了一遍
+
+```c++
+class String
+{
+    char* m_Buffer; // 指向字符缓冲区
+    unsigned int m_Size;
+public:
+    String(const char* string){
+        m_Size = strlen(string);
+        m_Buffer = new char[m_Size+1];
+        // 考虑空终止符 写char[m_Size+1]
+        memcpy(m_Buffer, string, m_Size+1);
+        // 将string的字符复制到m_Buffer
+        // 也可以用for循环一个一个地复制
+        // 如果不能保证string这个字符串有空终止符
+        // 就要添加一句
+        // m_Buffer[m_Size] = 0;
+    }
+    
+    ~String()
+    {
+        delete[] m_Buffer;
+    }
+    
+    char& operator[](unsigned int index)
+    {
+        return m_Buffer[index];
+    }
+    
+    friend std::ostream& operator<<(std::ostream& stream, const String& string);
+    // 把声明复制过来就可以写成友元
+};
+
+std::ostream& operator<<(std::ostream& stream, const String& string)
+{
+    // stream << string.GetBuffer();
+    // 这样就需要写一个GetBuffer的方法
+    // 可以把这个重载的运算符变成友元
+    stream << string.m_Buffer;
+    return stream;
+}
+
+int main()
+{
+    String string = "123";
+    String second = string; // 在这里调用了拷贝构造函数
+    
+    std::cout << string << std::endl;
+    std::cout << second << std::endl;
+    
+    std::cin.get();
+}
+```
+
+`String second = string;` 这一句是复制这个String 实际上就是将所有类成员变量`char*`和`m_Size`复制到一个新的内存地址 就是String second 现在内存中有两个String 它们进行了复制 这种复制称为**浅拷贝** 是复制了指针`char*` 这两个内存 有着相同的`char*`值 因此你修改一个的值 另一个也会跟着一起变化 到达作用域结束时 String会被销毁 那么析构函数就要delete两次m_Buffer 两次释放同一个内存块 程序会崩溃
+
+真正我们需要分配一个新的char数组 来存储复制的字符串 现在我们只是复制了指针 就需要**深拷贝**
+
+浅拷贝不会去到指针的内容或者指针所指向的地方 也不会去复制它 深拷贝是会复制整个对象
+
+我们使用拷贝构造函数 C++会默认提供一个拷贝构造函数 
+
+默认拷贝构造函数 可以直接在类里写
+
+```c++
+String(const String& other);
+```
+
+如果把默认拷贝构造函数的功能自己实现出来就是
+
+```c++
+String(const String& other)
+    : m_Buffer(other.m_Buffer), m_Size(other.m_Size) {}
+```
+
+或者写成
+
+```c++
+String(const String& other)
+{
+    memcpy(this, &other, sizeof(String));
+}
+```
+
+但是用默认的不行 因为我们不仅想复制指针 我们想复制指针所指向的内存
+
+如果决定不需要拷贝构造函数 不允许复制 就写
+
+```c++
+String(const String& other) = delete;
+```
+
+这里是和unique_str不允许复制的内部实现很相似
+
+这样之后 我们之前在主函数里写的`String second = string;`就不能编译了 所以**之前我们在这个语句中 当时就是用了默认拷贝构造函数**
+
+```c++
+String(const String& other)
+    : m_Size(other.m_Size)
+{
+    m_Buffer = new char[m_Size+1];
+    memcpy(m_Buffer, other.m_Buffer, m_Size+1);
+}
+```
+
+回顾一下我们的构造函数
+
+```c++
+String(const char* string)
+{
+    m_Size = strlen(string);
+    m_Buffer = new char[m_Size+1];
+    memcpy(m_Buffer, string, m_Size+1);
+}
+```
+
+**构造函数是从零开始构造 拷贝构造函数是用来拷贝其他对象的**
+
+- 构造函数传`const char*` 从一个原始C字符串开始创建 它可能是一个指向任意长度字符串的指针 我要用strlen计算它的长度 再用memcpy将原始字符串内容复制到新分配的内存中 这是属于深拷贝
+  `String s = "Hello";`
+- 拷贝构造函数传`String&` 我已经知道这是一个String 它内部有存储size 不用再计算 直接使用other这个String实例自带的m_Size 然后深拷贝 复制other.m_Buffer的全部内容 包括\0
+
+**如果写函数直接传String类型 而不是传引用的话 也会调用拷贝构造函数 所以应该传const引用**
+
+```c++
+void PrintString(const String& string)
+{
+	//do something
+}
+```
+
+**无论如何 对于String 无论是你自己写的字符串类 还是std::string 优先传const引用 不要复制**
+
+# -> 箭头操作符
+
+```c++
+Entity e;
+e.Print();
+
+Entity* ptr = &e;
+// ptr.Print(); 不能这样写
+```
+
+ptr只是一个指针 一个数值 不是对象 不能调用方法
+
+```c++
+(*ptr).Print();
+ptr->Print();
+// 这两种写法是等效的
+```
+
+可以重载
+
+```c++
+// 手写智能指针
+class ScopedPtr
+{
+private:
+    Entity* m_Obj;
+public:
+    ScopedPtr(Entity* entity)
+        : m_Obj(entity) {}
+    
+    ~ScopedPtr()
+    {
+        delete m_Obj;
+    }
+    
+    Entity* operator->()
+    {
+        return m_Obj;
+    }
+    
+    // 也需要写一个const版本
+    // 后续创建e3时使用了这个版本
+    const Entity* operator->() const
+    {
+        return m_Obj;
+    }
+    
+};
+
+int main()
+{
+    Entity* e1 = new Entity();
+    e1->Print();
+    // 如果不用智能指针 就是像上面那样写
+    // 但如果用自己写的智能指针 就要重载运算符->
+    ScopedPtr e2 = new Entity();
+    e2->Print();
+    
+    const ScopedPtr e3 = new Entity();
+    e3->Print();
+
+    std::cin.get();
+}
+```
+
+使用-> 获取内存中某个成员变量的偏移量
+
+```c++
+struct Vector3
+{
+    float x, y, z;
+};
+```
+
+每一个float有4个字节 所以x的偏移量是0 y的偏移量是4 z是8 但如果你不知道类内部的变量顺序 就不知道偏移量了
+
+```c++
+int offset = (int)&(((Vector3*)0)->x);
+
+// (Vector3*)nullptr：将空指针nullptr强制转换为Vector3*类型指针 此时指针值为0
+// ->x：访问该指针指向的Vector3对象的成员变量x
+// &(...->x)：获取成员变量x的地址
+// (int)：将地址转换为整数类型
+```
+
+这里nullptr也可以写成0
+nullptr只能用于表示空指针 不能表示空整数或其他类型 它的设计初衷是解决0作为空指针时的类型歧义问题
+
+最后计算出来x的偏移量是0
+
+空指针的地址被假设为0 成员变量x的地址=空指针地址(0)+x在Vector3中的偏移量
+即 &(nullptr->x) = 0 + offset_of(x)
+
+# vector
+
+```c++
+struct Vertex
+{
+    float x, y, z;
+};
+
+std::ostream& operator<<(std::ostream& stream, const Vertex& v)
+{
+    stream << v.x << ", " << v.y << ", " << v.z;
+    return stream;
+}
+
+int main()
+{
+    Vertex vertices_stack[5];
+	Vertex* vertices_heap = new Vertex[5]; 
+	// 无论是栈创建还是堆创建 都要指定具体的大小
+
+    std::cin.get();
+}
+```
+
+我们需要一种方式 在到达最大容量时 重新调整容量
+
+```c++
+#include <vector>
+
+int main()
+{
+    std::vector<Vertex> vertices;
+
+    std::cin.get();
+}
+```
+
+也可以在`std::vector<?????>` 指定成原始类型 比如int
+
+存储vector对象比存储指针在技术上更优 vector对象的内存分配是线性的 是内存连续的数组 这样再去操作会很容易 因为都在同一个cache line上 **优先存储对象**
+
+唯一的问题是 如果要调整单个vector的大小 就要复制所有的数据 会比较缓慢 而如果是指针 实际的内存保持不变 因为你只是保存了一系列指向内存的指针 调整大小的时候 数据仍然存储着 当vector需要扩容时 它会分配一块更大的连续内存 并将原有的指针值（即内存地址）复制到新内存中 指针指向的实际对象不会被复制或移动 它们仍驻留在原有的内存位置 而由于指针的大小固定 只取决于你的系统是多少位的 复制速度极快 扩容开销低
+
+```c++
+std::vector<Vertex> vertices;
+vertices.push_back({ 1, 2, 3 });
+vertices.push_back({ 4, 5, 6 });
+vertices.push_back({ 7, 8, 9 });
+
+for (int i = 0; i < vertices.size(); i++)
+    std::cout << vertices[i] << std::endl;
+	// []运算符已经重载了 现在就像普通数组一样
+```
+
+现在就会输出
+
+```c++
+1, 2, 3
+4, 5, 6
+7, 8, 9
+```
+
+也可以使用 **for循环的语法糖**
+
+```c++
+for (Vertex v : vertices)
+	// 遍历vertices的所有元素 将当前元素拷贝构造到临时变量v中 其实就是复制
+	std::cout << v << std::endl;
+```
+
+但我们要尽可能避免复制 传引用
+
+```c++
+for (Vertex& v : vertices)
+    // 更可以用const Vertex&
+	std::cout << v << std::endl;
+```
+
+将数组大小设回为0
+
+```c++
+vertices.clear();
+```
+
+如果想移除数组的特定元素 比如第3个元素 也就是索引为2的那个元素
+
+```c++
+vertices.erase(vertices.begin() + 2);
+```
+
+再对vertices数组进行输出 就会输出
+
+```c++
+1, 2, 3
+4, 5, 6
+```
+
+成功地删除了第3个元素
+
+**将vector传给函数或者类或者什么其它东西的时候 要确保是用引用传递 如果只读就用常量引用**
+
+```c++
+void Function(const std::vector<Vertex>& vertices)
+{
+    // do something
+}
+
+int main()
+{
+    std::vector<Vertex> vertices;
+    vertices.push_back({ 1, 2, 3 });
+	vertices.push_back({ 4, 5, 6 });
+	vertices.push_back({ 7, 8, 9 });
+    
+	Function(vertices);
+    
+    std::cin.get();
+}
+```
+
+# std::vector使用优化
+
+你创建一个vector 然后你开始push_back元素 也就是向数组中添加元素 如果vector的容量不够大 不能容纳你想添加的新元素 vector就需要扩容 将内存中旧位置的所有内容复制到内存中的新位置 然后删除旧位置的内存 每次容量用完都要调整大小重新分配 有很多不必要的复制 如何避免
+
+**只需要设置拷贝构造函数 你就会知道到底发生了多少次复制**
+
+```c++
+struct Vertex
+{
+    float x, y, z;
+    
+    Vertex(float x, float y, float z)
+        : x(x), y(y), z(z) {}
+    
+    Vertex(const Vertex& other)
+        : x(vertex.x), y(vertex.y), z(vertex.z)
+    {
+		std::cout << "Copied!" << std::endl;
+    }
+};
+
+int main()
+{
+    std::vector<Vertex> vertices;
+    vertices.push_back({ 1, 2, 3 });
+    vertices.push_back({ 4, 5, 6 });
+    vertices.push_back({ 7, 8, 9 });
+	// 写成vertices.push_back(Vertex(1, 2, 3)); 会更易读
+	// 这样就是调用了Vertex的构造函数 创建临时Vertex对象传入push_back中
+    // 而不再是隐式构造
+    
+    std::cin.get();
+}
+```
+
+会输出6次Copied!
+
+1. `std::vector<Vertex> vertices;`
+   vertices对象本身是存储在main函数的栈帧中 此时这个vector size=0 capacity=0
+2. `vertices.push_back({1, 2, 3})` 
+   用**聚合初始化隐式构造**一个临时Vertex对象{1, 2, 3} 当然也可以用`vertices.push_back(Vertex(1, 2, 3));`显式构造 无论显式还是隐式构造 都是调用了Vertex的构造函数  最后要把临时对象从栈帧拷贝到真实的那个Vector所在的内存中 实际上是**在main函数的栈帧中构造了这个临时Vertex对象** push_back尝试将这个临时对象添加到vector中 而vector初始为空 容量为0 就需要扩容 **vector的元素是存储在堆内存中 与main栈帧无关** 所以要分配堆内存 容量为1 然后**将main栈帧中的临时对象拷贝构造到vector的堆内存中** 触发拷贝构造函数 输出一个Copied! **main栈帧中的临时对象在表达式结束之后销毁**
+   此时 vector size=1 capacity=1
+3. `vertices.push_back({4, 5, 6})`
+   隐式构造第二个临时Vertex对象{4, 5, 6} 当前vector容量为1 但需要存储2个元素 需要**扩容** 新容量为2\*capacity=2 **将原有元素从旧的堆内存拷贝构造到新的堆内存** 输出一个Copied! 将新临时对象{4, 5, 6}从main栈帧拷贝构造到新的堆内存 输出一个Copied! 然后销毁旧内存中的元素 此时vector size=2 capacity=2
+4. `vertices.push_back({ 7, 8, 9 });` 现在vector的容量是2 再添加{7, 8, 9}就需要扩容 会扩容成4 {1, 2, 3}从旧内存复制到新内存是调用1次拷贝构造函数 {4, 5, 6}从旧内存复制到新内存是调用1次拷贝构造函数 {7, 8, 9}从临时对象复制到新内存是调用1次拷贝构造函数 此时vector size=2 capacity=2
+
+debug模式下 把鼠标悬停在vertices变量名上 再按小三角▶ 就可以看到size、capacity、vector中的元素列表 可以显示每个vector对象的具体值
+
+然而拷贝次数太多了 如何优化？
+
+减少扩容次数？ 比如你大概知道你要用多少内存 创建一个那样大的vector就好了 避免扩容 防止反反复复地从旧的堆内存复制到新的堆内存
+
+```c++
+std::vector<Vertex> vertices;
+vertices.reserve(3);
+```
+
+这和`std::vector<Vertex> vertices(3);`是有区别的
+
+1. `vertices.reserve(3);` 分配足够容纳3个Vertex对象的未初始化堆内存 仅分配内存 所以不依赖构造函数 size仍为0 capacity变为3
+
+2. `std::vector<Vertex> vertices(3);` 是调用std::vector的构造函数重载 构造一个包含3个默认初始化的Vertex对象的vector 因为要默认初始化 这就需要Vertex类有默认构造函数 但我们写的Vertex类没有默认构造函数
+
+   ````c++
+   Vertex()
+   {
+       // 里面写点什么 或者什么都不写
+   }
+   ````
+
+   只有需要参数的构造函数
+   ```c++
+   Vertex(float x, float y, float z) : x(x), y(y), z(z) {}
+   ```
+   所以就无法通过编译了 如果有默认构造函数 就会size变为3 capacity变为3 其实我们根本不需要创建对象 只是希望开辟足够的内存
+
+添加了reserve之后 就只会有3次Copied 因为不需要扩容
+
+但我们仍然在 将临时对象从main栈帧复制到实际的vector中 还在复制 还在复制
+
+于是我们不再使用push_back 而是emplace_back 这时候就不能传`Vertex(1, 2, 3)` 不能`vertices.emplace_back(Vertex(1, 2, 3));` 因为不能传我们已经构建的Vertex对象 而是`vertices.emplace_back({ 1, 2, 3 });` 只传Vertex构造函数的参数列表 告诉vector 用下列参数直接在实际的vector内存中构造一个Vertex对象
+
+```c++
+std::vector<Vertex> vertices;
+vertices.reserve(3);
+vertices.emplace_back({ 1, 2, 3 });
+vertices.emplace_back({ 4, 5, 6 });
+vertices.emplace_back({ 7, 8, 9 });
+```
+
+现在这样就没有任何复制发生 输出0个Copied
+
+# C++库
+
+倾向于在实际解决方案的项目文件夹中 保留使用的库的版本 从源码构建 因为有助于调试 或者可以修改库 而不是使用包管理器 但如果想快速使用 就选择预构建的二进制文件
+
+暂时先不考虑获取实际依赖库的源码自己编译 先考虑如何链接二进制文件 
+
+glfw库
+
+在[官网](https://www.glfw.org/)就可以下载Windows pre-compiled binaries 但是下载32位二进制(32-bit)还是64位 不=和你实际的操作系统没有关系 取决于你在开发什么目标应用程序 你的解决方案是要在哪个配置之下 x86还是x64 如果不匹配 就无法进行链接
+
+现在我们下载64位的 解压缩打开看到
+
+```c++
+docs // 官方文档
+include // 头文件 GLFW/glfw3.h 和 GLFW/glfw3native.h
+lib-mingw-w64 // 为 MinGW-w64 编译器预编译的库文件
+lib-static-ucrt // 稍后介绍
+lib-vc2013
+lib-vc2015
+lib-vc2017
+lib-vc2019
+lib-vc2022 // 为 Visual Studio 2022 编译的 动态库
+LICENSE.md
+README.md
+```
+
+这是C++库的典型文件组织结构 有不同编译器编译出来的库文件 mingw-w64和很多版本的visual studio
+
+库通常有两部分 includes(包含目录)和library(库目录)
+
+includes是一堆头文件 这样我们就可以实际使用预构建的二进制文件中的函数
+
+lib中有那些预构建的二进制文件 分为静态库和动态库 但也不是所有的库都会提供这两种库 可能只有一种 但是glfw提供了两种 你可以选择静态链接还是动态链接
+
+在解决方案文件夹里 创建名为dependencies的文件夹 依赖项 也就是库文件的目录 在这个文件夹里 创建一个名为GLFW的文件夹 把GLFW库的include和lib-vc2022文件夹复制到这里 打开lib-vc2022文件夹
+
+静态链接意味着 这个库会被放到你的可执行文件中 它在你的exe文件中 所有代码都被编译进你的程序
+
+动态链接是运行时链接 是一个单独的文件 在运行时你需要把它放到你的exe文件旁边 或者其它某个地方 然后你的exe文件可以加载它
+
+意思就是 如果我只依赖静态库写程序 发布给别人 我只需要给别人这个exe文件就好了 他就可以直接使用 但是如果我依赖了动态库写程序 我想要发布给别人使用 我不仅要给他这个exe文件 我还必须把我依赖的动态库放在旁边提供给他 或者我就要求他的设备本身就拥有这个动态库
+
+静态链接会更快 编译器或者链接器可以执行链接时优化 但是动态库就必须保持它的完整 没办法优化 动态链接库被运行的程序装载时 程序的部分将被补充完整 所以静态链接是更好的选择
+
+xxxxxxx.dll 动态库本体 需要随程序分发
+xxxxxxxdll.lib 导入库 包含了对应的.dll中所有函数、符号的位置 所以可以在编译时链接它们 如果没有.lib 仍然可以使用.dll
+xxxxxxx.lib 静态库 明显占据的空间更大
+
+假如我正在自己写库 无论我写了动态库还是静态库 总之现在我这个库依赖了动态库
+比如
+
+你编写了一个静态库mylib.lib 并让它依赖了动态库dependency.dll 也就是说 你的库在代码中调用了dependency.dll中的函数 那么用户在使用你的库mylib.lib时
+编译期间 用户需要链接dependency.lib（动态库的导入库）
+运行期间 用户必须在手头有dependency.dll 否则程序会崩溃
+
+**你希望用户完全无需处理dependency.dll的问题 唯一的解决方案就是将这个依赖库也静态链接** 也就是把dependency.dll替换成静态库版本dependency.lib 这样用户在编译时就只需要链接你的这个库 不用再处理dependency.dll的事情 代价是 你的静态库体积增大了 这是你需要取舍的
+
+这其实也就是lib-static-ucrt所做的事情
+
+lib-static-ucrt这个文件夹里 包含文件
+glfw3.dll 动态库本体
+glfw3dll.lib 动态库的导入库（用于链接）
+
+于是我们可以判定 这是一个动态库 那么 为什么它的名字里有static 这是因为 lib-static-ucrt是一个 静态链接了ucrt运行时库 的 动态库
+
+首先解释 什么是运行时库？
+
+运行时库（Runtime Library）是编译器提供的基础函数库 所有程序都需要它们 你的程序在运行时必须依赖这些库才能正常工作 它们包含了许多核心功能 比如 malloc free printf fopen strcpy strlen 等等
+
+ucrt就是一个Win10引入的通用C运行时库（ucrtbase.dll） 所以Win7自然是没有这个东西的 为了程序兼容性 我们就需要把ucrt这个库 即ucrtbase.dll 静态链接到glfw3.dll这个动态库中 这样用户就可以在旧系统上仍能使用glfw库
+
+所以 尽管目录名包含static 但它实际提供的是动态库dll 只是将运行时库ucrt以静态方式链接在其中了
+
+因为ucrt是一个运行时库 它太基本了 你只有两种选择
+要么是动态链接运行时库 这就要求用户的设备里必须有ucrtbase.dll win10之后的系统里都有 你不用担心
+要么是静态链接运行时库 将运行时库的代码直接打包到你的程序中 这样即使是用户在比win10更旧的系统里 也可以使用你的程序 代价是程序占据的空间变大
+
+而假如 无论我写了一个静态库还是动态库 总之我这个库 依赖了静态库 其他人在使用我的库时 不仅需要下载我的库 还需要下载我依赖的那个库
+
+所以 假如我写库 无论是静态库还是动态库 也无论我依赖了静态库还是动态库 只要其它人使用我的**库** 他就必须也同时拥有我依赖的那个库 如果我希望我的用户避免再去处理依赖库的问题 我的唯一解决方案就是把我依赖的库 静态链接到我写的库里
+
+而静态库和动态库的唯一区别 是用户在发布使用这个库开发的**程序**的区别 仅依赖静态库开发的程序 在分发时不需要再提供单独的库文件 只需要发布可执行文件exe 而依赖了动态库开发的程序 在分发时也要同时发布单独的动态库文件 否则你就必须指望用户的系统里已经存在这个动态库
+
+优先动态链接的场景 依赖库更新频繁 目标系统较新
+优先静态链接的场景 依赖库稳定且体积较小（如数学库） 需要兼容旧系统
+
+打开解决方案 右键项目 点击属性 先把配置换成所有配置 所有平台 然后点C/C++ - 常规 - 附加包含目录 也就是include文件夹的路径 **最好写相对路径** 
+
+在[Visual Studio设置](#Visual Studio设置) 我们似乎做过类似的工作 
+
+解决方案所在的目录为 \$(SolutionDir) 先把它输入进去 再点击附加包含目录最右侧的小三角箭头 再点编辑 可以看到计算的值为`D:\coding\C++\Project_test\` 也可以点击宏 在列表中找到 \$(SolutionDir)
+而此前我们存放include的目录为 `D:\coding\C++\Project__test\dependencies\GLFW\include` 
+
+可以双击左侧文本框进行修改 最后填入的是`$(SolutionDir)dependencies\GLFW\include` 在计算的值那栏也可以实时看到地址 你还可以发现这里已经有了一个`%(AdditionalIncludeDirectories)` 这是当前已有的附加包含目录 也就是父级（如全局、平台、配置等）已经设置的目录
+
+\$(SolutionDir) 指的是解决方案.sln所在目录
+\$(ProjectDir) 指的是项目文件.vcxproj所在目录
+
+```c++
+#include "GLFW/glfw3.h"
+// 因为glfw3.h是在D:\coding\C++\Project__test\dependencies\GLFW\include\GLFW文件夹里
+```
+
+Windows 默认使用 反斜杠 \ 作为路径分隔符 例如 C:\Program Files\GLFW\include 但现代 Windows 系统也支持 正斜杠 / 例如 C:/Program Files/GLFW/include
+Unix/Linux/macOS 统一使用 正斜杠 / 作为路径分隔符 例如 /usr/local/include/GLFW
+
+**全都优先使用 正斜杠 / 跨平台**
+
+<span id="mypoint_12"></span> ***< > 和 " " 的区别***
+
+`#include <header.h>`  
+编译器优先在 系统级包含目录 和 显式指定的外部依赖目录 中搜索头文件
+
+1. 系统级目录：如 `C:\Program Files (x86)\Microsoft Visual Studio\...\include`（Windows）
+2. 用户通过编译器参数显式指定的目录（如 `-I/path/to/external`）  
+3. **不搜索当前文件所在目录**
+
+`#include "header.h"`  
+编译器按以下顺序搜索：  
+
+1. 当前文件所在目录（包含相对路径） 
+2. 项目内显式指定的目录（如 Visual Studio 的项目属性中配置的包含路径）  
+3. 系统级包含目录 和 外部依赖目录
+
+**如果头文件在Visual Studio中 在解决方案中的某个地方 无论是不是在同一个项目里 但同属一个解决方案 就使用""**
+**如果是一个完全的外部依赖 外部的库 不在Visual Studio中和我的实际解决方案一起编译 那就用<> 表明它是外部的 然后通过项目属性中设置附加包含目录来让编译器找到它 所以可以通过设置附加包含目录来同时使用多个头文件**
+
+目前 解决方案.sln 是在`D:\coding\C++\Project_test`文件夹
+我的main.cpp在 `D:\coding\C++\Project__test\Project__test\src`
+而我要用的头文件glfw3.h 在`D:\coding\C++\Project_test\dependencies\GLFW\include\GLFW`
+
+1. <span id="mypoint_13"></span>第一种方法 我可以设置项目的包含路径 `$(SolutionDir)dependencies\GLFW\include`
+   那么我就可以写头文件 `#include <GLFW/glfw3.h>` 表示是显式配置的外部路径 这个头文件是通过设置附加包含目录找到的 而不是通过" "去查找相对路径找到的
+   但其实这个头文件就在我们的解决方案里 所以也可以写 `#include "GLFW/glfw3.h"` 表示这个头文件就在解决方案内部 是我们的源文件之一 而不是来自解决方案外部
+   其实用这两种写法都可以 但规范更倾向于
+   **第三方库写< >**
+   **自研库写" " 但也不用相对路径 仍然是配置附加包含目录后写简短路径**
+
+2. 第二种方法 假如我这个glfw未必就和我的解决方案放在一起 那我就重新把包含路径设置成glfw当前所在的位置 可以写绝对路径 也可以设置环境变量 然后写`#include <GLFW/glfw3.h>` 表明它是外部的 没和我的解决方案在一起 也属于依靠显式设置的外部路径来找寻头文件
+
+3. 第三种方法 我不设置项目的附加包含目录 我就写`#include "../../dependencies/GLFW/include/GLFW/glfw3.h"` " "会搜索当前目录的相对路径 但是是相对main.cpp的路径 因为我现在是要在main.cpp里使用这个头文件 这种方法要求库和解决方案基本是放在一起的
+
+所以 在我们当前设置了包含路径为`$(SolutionDir)dependencies\GLFW\include` 的情况下 以下两种写法都可以 是一模一样的
+
+```c++
+#include "../../dependencies/GLFW/include/GLFW/glfw3.h"
+#include <GLFW/glfw3.h>
+```
+
+鼠标悬停在`<GLFW/glfw3.h>`上面 当然悬停在`"../../dependencies/GLFW/include/GLFW/glfw3.h"`上面也可以 按ctrl 就可以直达头文件glfw3.h的内容 当然也可以右键 - 转到文档 是一样的
+
+```c++
+#include <iostream>
+#include <GLFW/glfw3.h>
+
+int main()
+{
+	int a = glfwInit();
+    std::cin.get();
+}
+```
+
+现在生成这个项目 就会报错 无法解析的外部符号 说明我们没有链接到真正的库
+
+glfwInit 鼠标悬停在glfwInit()上 ctrl并点击 就可以看到在glfw3.h中 `GLFWAPI int glfwInit(void);` 只有一个声明 告诉我们这个函数存在 但没有函数体 所以就不能成功链接
+
+如果我们在main.cpp中实现这个函数
+
+```c++
+#include <iostream>
+#include <GLFW/glfw3.h>
+
+int glfwInit()
+{
+	return 0;
+}
+
+int main()
+{
+	int a = glfwInit();
+    std::cin.get();
+}
+```
+
+现在就可以重新生成 得到了Project_test.exe 但我们不想用自己写的这个 想用库里面的那个 把自己写的这个函数删掉
+
+.lib和.dll都是二进制文件 所以看不到内部函数的具体实现 除非用反汇编工具
+
+## 静态链接
+
+右键项目 - 属性 - 链接器 - 输入 - 附加依赖项 编辑填入`glfw3.lib`
+在链接器 - 常规 - 附加库目录 编辑填入`$(SolutionDir)dependencies\GLFW\lib-vc2022`
+
+现在已经指定了库目录 也指定了库文件的名称 现在就可以成功生成了 a的值最后是1
+
+```c++
+#include <iostream>
+// #include <GLFW/glfw3.h>
+// 将头文件删除掉了
+
+extern "C" int glfwInit();
+// 自己写了一个声明
+
+int main()
+{
+	int a = glfwInit();
+	std::cout << "GLFW initialized: " << a << std::endl;
+	std::cin.get();
+}
+```
+
+头文件删除了 但头文件能提供的也就只有函数声明 而我自己写了一个声明 所以不再需要头文件 编译器也能知道glfwInit是存在的 在编译时它就自动搜索项目依赖的库文件 来找到glfwInit的二进制实现
+
+C++支持函数重载 编译器会对函数名进行修饰 使用签名 比如glfwInit可能被编译为_Z8glfwInitv 来区分不同参数类型的同名函数 而GLFW是使用C编写的库 函数名在这个库里就是glfwInit `extern "C"`就是告诉编译器 这个函数使用C的链接规则 不要对函数名进行修饰 这样链接器就可以找到GLFW库中的函数实现
+
+头文件提供声明 告诉我们哪些函数是可用的
+库文件提供函数定义 这样就可以链接到具体的函数
+
+## 动态链接
+
+对于动态库 有两种形式
+
+1. 静态的 动态库版本 我已经知道里面有什么函数 我可以使用什么
+2. 任意加载这个动态库 甚至不知道里面有什么
+
+GLFW同时支持静态库与动态库 头文件的使用方式仍然是`#include <GLFW/glfw3.h>`
+
+右键项目 - 属性 - C/C++ - 常规 我们的附加包含目录仍然和静态链接一样
+
+属性 - 链接器 - 输入 - 附加依赖项 **静态链接中我们写入的是glfw3.lib 动态链接中我们要写入动态库的导入库 glfw3dll.lib**
+
+现在 生成项目会报错 找不到glfw3.dll 所以现在要复制dll 把dll和可执行文件exe放在一起  就可以正常使用了 可执行文件的目录是一种自动搜索路径
+
+查看这个glfw3.h 发现2000多行才出现第一个函数声明 在此之前全都是宏定义#define typedef一类的东西
+
+```c++
+GLFWAPI int glfwInit(void);
+```
+
+悬停在GLFWAPI上 并没有看到什么东西 不如右键查找所有引用 或者转到定义 速览定义 就可以看到它的#define
+
+GLFWAPI宏 用于修饰GLFW的公共API函数
+在构建 GLFW 库时 标记函数需要导出 暴露给其他程序使用
+在使用 GLFW 库时 标记函数需要导入 从库中加载实现
+
+```c++
+/* GLFWAPI is used to declare public API functions for export
+ * from the DLL / shared library / dynamic library.
+ */
+
+#if defined(_WIN32) && defined(_GLFW_BUILD_DLL)
+ /* We are building GLFW as a Win32 DLL */
+// 在 Windows (_WIN32) 且正在 构建 GLFW 为 DLL (_GLFW_BUILD_DLL)
+ #define GLFWAPI __declspec(dllexport)
+// __declspec(dllexport) 告诉编译器：导出此函数 使其可在 DLL 外部调用
+
+#elif defined(_WIN32) && defined(GLFW_DLL)
+ /* We are calling a GLFW Win32 DLL */
+// 在 Windows (_WIN32) 且 用户代码通过 DLL 使用 GLFW (GLFW_DLL)
+ #define GLFWAPI __declspec(dllimport)
+// __declspec(dllimport) 告诉编译器：此函数从 DLL 导入 优化调用效率
+
+#elif defined(__GNUC__) && defined(_GLFW_BUILD_DLL)
+ /* We are building GLFW as a Unix shared library */
+// 使用 GCC/Clang (__GNUC__) 且正在 构建 GLFW 为共享库 (_GLFW_BUILD_DLL)
+ #define GLFWAPI __attribute__((visibility("default")))
+// visibility("default") 强制函数在共享库中可见（默认情况下 GCC 会隐藏符号）
+
+#else
+// 静态链接或非动态库场景
+ #define GLFWAPI
+// GLFWAPI 定义为空 函数使用普通声明（无特殊导出/导入逻辑）
+#endif
+```
+
+`#if defined(_WIN32) && defined(_GLFW_BUILD_DLL)`
+
+怎么知道`_WIN32` `__GNUC__` `_GLFW_BUILD_DLL` `GLFW_DLL` 是否defined？
+
+当编译器目标平台是Windows时 Windows平台编译器自动定义`_WIN32`
+`_GLFW_BUILD_DLL` 从源代码用cmake编译 且选择构建为动态库时 定义的
+`GLFW_DLL` 是要用户调用这个库时手动定义的
+
+```c++
+#define GLFW_DLL  // 必须在包含 glfw3.h 前定义！
+#include <GLFW/glfw3.h>
+```
+
+**通过宏封装差异 使 GLFW 的 API 在所有平台上保持统一** 体现了 C/C++ 底层开发的精髓 通过预编译机制抽象平台差异 为用户提供简洁一致的接口
+
+但我在visual studio中 并没有 `#define GLFW_DLL` 也成功使用了动态库 但是没有优化 没有 `__declspec(dllimport)` 会导致函数调用多一次跳转 性能损失约 5-10%
+
+现在是因为我闲着没事才查看了GLFWAPI的定义 我知道需要GLFW_DLL 但如果是其它第三方库 我怎么知道还要定义宏才能优化性能？
+
+阅读官方文档 例如GLFW文档明确说明 `On Windows, define GLFW_DLL to use the GLFW DLL.` 或者查看头文件
+
+悬停在glfwInit上 发现可以看到函数功能描述和参数介绍 这是因为使用了**Doxygen风格的注释** 只要写在头文件或源文件的函数声明/定义前 IDE就能识别
+
+```c++
+/*!
+ * @brief 计算两个整数的和
+ * @param a 第一个整数
+ * @param b 第二个整数
+ * @return 两数之和
+ */
+int add(int a, int b);
+```
+
+`/*! ... */` `/** ... */` Doxygen支持的注释块
+`@brief` 描述函数
+`@param` 参数
+`@return` 返回值
+
+## 创建库和使用库
+
+现在我们已经有了名为创建一个名为Game的解决方案 它自带一个名为Game的空项目
+
+在这个解决方案里再创建一个名为Engine的空项目
+
+右键Game项目 属性 - 常规 - 配置类型 设置成 应用程序.exe
+右键Engine项目 属性 - 常规 - 配置类型 设置成 静态库.lib
+应用到 所有配置 所有平台
+
+按照[Visual Studio设置](#Visual Studio设置)修改输出目录和中间目录 以及创建src文件夹
+
+解决方案视图
+在Game项目 右键源文件 通过 新建项 创建 Application.cpp
+在Engine项目 分别右键源文件和头文件 创建 Engine.h和Engine.cpp
+再都分别移动到src文件夹中
+
+也可以先在文件夹视图 src文件夹中都通过新建项创建好 再切回解决方案视图 右键源文件或者头文件 添加 - 现有项 选择src文件夹里那些 这样就把文件都组织到了项目之中
+
+```c++
+// Engine.h
+#pragma once
+
+namespace engine
+{
+	void PrintMessage();
+}
+```
+
+头文件里不需要实现这个函数
+
+```c++
+// Engine.cpp
+
+#include "Engine.h"
+
+#include <iostream>
+
+namespace engine
+{
+	void PrintMessage()
+	{
+		std::cout << "Hello from the Engine!" << std::endl;
+	}
+}
+```
+
+```c++
+// Application.cpp
+
+#include "../../Engine/src/Engine.h"
+// 根据""会搜索相对目录这样写
+
+int main()
+{
+	engine::PrintMessage();
+}
+```
+
+也可以通过项目属性设置
+
+右键Game项目 -  属性 - C/C++ - 常规 -  附加包含目录 写入`$(SolutionDir)Engine\src`
+
+现在就可以写头文件 `#include "Engine.h"` 其实[前面](#mypoint_13)已经讨论过了
+
+现在对Engine项目进行生成 我们得到了一个Engine.lib 按照之前设置好的输出目录和中间目录 它应该在 `D:\coding\C++\Game\bin\x64\Debug` Visual Studio的输出窗口在生成结束后 其实已经为你输出了它的所在地址
+
+右键Game项目 - 链接器 - 输入 - 附加依赖项 写入Engine.lib
+链接器 - 常规 - 附加库目录 写入 `$(SolutionDir)bin\x64\Debug`
+按照之前静态链接的方法 我们应该是像这样做
+
+但是 这个lib是在我们的解决方案之中
+右键Game项目 - 添加 - 引用 - 项目 - 解决方案 选择这个Engine项目
+现在 就和我们手动把lib文件添加到链接器中一样
+
+引用的好处是如果我们修改了库的名字 仍然可以使用 而不用麻烦地修改
+
+现在Game依赖于Engine 所以如果Engine发生了修改 我们去编译Game 编译Game实际上就是Game和Engine都编译了 所以即使你忘记了编译Engine也无所谓
+
+右键Engine项目 清理 这样生成的.lib文件就没有了 现在直接生成Game 在输出窗口就可以看到 先生成了项目Engine 又生成了项目Game 因为Game引用了Engine Game需要Engine才能工作
+
+将Application.cpp修改为
+
+```c++
+#include "Engine.h"
+
+#include <iostream>
+
+int main()
+{
+	engine::PrintMessage();
+	std::cin.get();
+}
+```
+
+这样就不会马上退出程序 运行程序 就可以看到控制台确实输出了Hello from the Engine!
+
+我们在 `D:\coding\C++\Game\bin\x64\Debug` 找到我们的Game.exe 将它复制到桌面上 点击运行 没有任何问题！ 这就是静态库 不需要外部文件依赖
+
+
+
+
+
+# 生成文件列表
+
+打开目标文件夹 shift+右键 选择在此处打开powershell窗口 输入命令`Get-ChildItem -Name`
+
+若需树状结构 安装tree命令后使用`tree`
 
 # 本文目录使用python脚本自动生成
-
-2025/4/15
 
 ```python
 import re

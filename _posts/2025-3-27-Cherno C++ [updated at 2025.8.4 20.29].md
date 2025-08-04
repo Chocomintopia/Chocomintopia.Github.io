@@ -39,7 +39,7 @@
 - [拷贝与拷贝构造函数](#拷贝与拷贝构造函数)
 - [-> 箭头操作符](#-箭头操作符)
 - [vector](#vector)
-- [std::vector使用优化](#stdvector使用优化)
+  - [std::vector使用优化](#stdvector使用优化)
 - [C++库](#c库)
   - [静态链接](#静态链接)
   - [动态链接](#动态链接)
@@ -53,12 +53,42 @@
 - [函数指针](#函数指针)
   - [回调](#回调)
 - [labmda](#labmda)
-- [生成文件列表](#生成文件列表)
-- [本文目录使用python脚本自动生成](#本文目录使用python脚本自动生成)
+- [命名空间 namespace](#命名空间-namespace)
+- [线程](#线程)
+- [计时](#计时)
+- [多维数组](#多维数组)
+- [排序 std::sort](#排序-stdsort)
+- [类型双关](#类型双关)
+- [union](#union)
+- [虚析构函数](#虚析构函数)
+- [类型转换](#类型转换)
+- [条件与操作断点](#条件与操作断点)
+- [C++安全](#c安全)
+- [预编译头文件](#预编译头文件)
+- [dynamic_cast](#dynamic_cast)
+- [基准测试 Benchmark Test](#基准测试-benchmark-test)
+- [结构化绑定](#结构化绑定)
+- [std::optional](#stdoptional)
+- [std::variant](#stdvariant)
+- [std::any](#stdany)
+- [多线程 std::async](#多线程-stdasync)
+- [std::string_view](#stdstring_view)
+- [可视化基准测试](#可视化基准测试)
+- [单例模式 singleton](#单例模式-singleton)
+- [小字符串优化 SSO](#小字符串优化-sso)
+  - [如何阅读STL源码](#如何阅读stl源码)
+- [跟踪内存分配](#跟踪内存分配)
+- [左值和右值](#左值和右值)
+- [持续集成 CI](#持续集成-ci)
+- [静态分析](#静态分析)
+- [参数求值顺序](#参数求值顺序)
+- [移动构造函数](#移动构造函数)
+- [std::move](#stdmove)
 
 ------
 
-我们有很多尚未解决的问题 在那些文本里我使用了 *暂时* 这个词语 请使用网页搜索功能
+
+Visual Studio 2022
 
 只有main函数可以没有返回值 默认返回0 其他函数都要有返回值 或者void
 
@@ -7229,7 +7259,7 @@ basic_string() noexcept(is_nothrow_default_constructible_v<_Alty>) : _Mypair(_Ze
 _Compressed_pair<_Alty, _Scary_val> _Mypair;
 ```
 
-用同样的方式查看`_Compressed_pair`类 注释里写store a pair of values, deriving from empty first 在本例中它存储了一对`_Alty` `_Scary_val` 我们对`_Scary_val`右键速览定义 发现是`_String_val`的别名
+用同样的方式查看`_Compressed_pair`类 注释里写store a pair of values, deriving from empty first 在本例中它存储了一对`_Alty` `_Scary_val` 我们对`_Scary_val`右键速览定义 发现基本上就是`_String_val`的别名
 
 **\_String_val**是一个类 是实现小字符串优化的核心
 
@@ -7334,7 +7364,9 @@ public:
 
 我们将逐行分析
 
-构造函数是`_String_val() noexcept : _Bx() {}` `_Bx`是一个`_Bxty` 在类的后半段可以看到
+`_String_val`类的构造函数是`_String_val() noexcept : _Bx() {}`
+
+在类的后半段可以看到 `_Bx`是一个`_Bxty`
 
 ```c++
 union _Bxty {
@@ -7348,11 +7380,13 @@ union _Bxty {
 _Bxty _Bx;
 ```
 
-这是一个联合体 官方有注释说 存储小的buffer或者指向更大buffer的指针 使用union可使让同一块内存可以用不同方式解释 实现小字符串优化
+这是一个联合体 官方有注释说 存储小的buffer或者指向更大buffer的指针 使用联合体可以让同一块内存可以用不同方式解释 实现小字符串优化
 
-所以构造函数就是创建了一个空的名为`_Bx`的`_Bxty`类型union 那么它就会创建一个`_Buf[_BUF_SIZE]`数组 实际上也等同于创建了一个指针`_Ptr` 但我们还不知道`_BUF_SIZE` 所以在创建之前需要设置好`_BUF_SIZE` 而且我们也不知道union里的`_Ptr`从哪里来
+所以这个`_String_val`类的构造函数`_String_val() noexcept : _Bx() {}` 就是创建了一个空的名为`_Bx`的`_Bxty`类型联合体
 
-于是回到类的开头 首先解决`_BUF_SIZE`的问题 实际上你可以通过双击高亮`_BUF_SIZE` 迅速定位到这里
+[之前](#union)我们没有提到联合体的构造函数 其实联合体是可以有构造函数的 这个`_Bxty`类型联合体的构造函数`_Bxty() noexcept : _Buf() {}` 只是创建了一个`_Buf[_BUF_SIZE]`数组 实际上也等同于创建了一个指针`_Ptr` 但**联合体不能同时激活多个成员** 于是在构造时选择了初始化`_Buf` 那么就是默认为小字符串 而在使用`_Ptr`(堆分配)前需要先通过placement new激活 我们目前还不知道`_Buf`数组的`_BUF_SIZE` 所以在创建之前需要设置好`_BUF_SIZE` 而且我们也不知道联合体里的`_Ptr`在哪里激活
+
+于是回到类的开头 首先解决`_BUF_SIZE`的问题 可以通过双击 将`_BUF_SIZE`高亮 迅速定位到这里
 
 ```c++
 static constexpr size_type _BUF_SIZE = 16 / sizeof(value_type) < 1 ? 1 : 16 / sizeof(value_type);
@@ -7376,7 +7410,7 @@ static constexpr size_type _Small_string_capacity = _BUF_SIZE - 1;
 
 通过这几个操作 我们得到了`_BUF_SIZE` `_Alloc_mask` `_Small_string_capacity`
 
-现在解决`_Ptr`的问题
+现在来解决`_Ptr`激活的问题 实际上当联合体包含平凡类型时 并不需要显式地使用placement new 可以直接通过赋值来切换激活成员 这是因为平凡类型没有复杂的构造或者析构 而`_Buf`数组和`_Ptr`指针都是平凡类型
 
 ```c++
 _NODISCARD _CONSTEXPR20 value_type* _Myptr() noexcept {
@@ -7405,13 +7439,13 @@ _NODISCARD _CONSTEXPR20 bool _Large_mode_engaged() const noexcept {
 `value_type* _Result = _Bx._Buf;`
 `_Result`是一个指针 `_Bx`是一个联合体 这个联合体要么是小字符串直接存 要么就是指向长字符串的指针 `_Bx._Buf`就是那个小字符串
 
-而`if (_Large_mode_engaged())` 也就是`_Myres > _Small_string_capacity` `_Myres`表示当前字符串的容量 那么`_Result`就指向`_Bx._Ptr` `_Unfancy`通常是去掉智能指针
+而`if (_Large_mode_engaged())` 也就是`_Myres > _Small_string_capacity` `_Myres`表示当前字符串的容量 那么`_Result`就指向`_Bx._Ptr` `_Unfancy`通常是去掉可能存在的指针包装
 
 `_Myptr()`所做的事就是 字符串长度超过16 就会切换为指针 没超过就直接存
 
 我们现在就要回到`basic_string` 看看哪里调用了`_Myptr()`
 
-在构造函数之后 就可以看到一些常用的方法 比如重写的操作符
+在`basic_string`类中 构造函数之后 就可以看到一些常用的方法 比如重写的操作符
 
 ```c++
 _CONSTEXPR20 basic_string& operator=(const _Elem _Ch) { // assign {_Ch, _Elem()}
@@ -7424,10 +7458,803 @@ _CONSTEXPR20 basic_string& operator=(const _Elem _Ch) { // assign {_Ch, _Elem()}
 }
 ```
 
-`_Mypair`是`_Compressed_pair<_Alty, _Scary_val>` 那么`_Myval2`就是`_Scary_val` 而`_Myptr()`是`_Scary_val`的成员函数 所以`_Elem* const _Ptr = _Mypair._Myval2._Myptr();`就是获取字符串数据的指针 无论是直接存储的小字符串 还是堆分配的字符串
+`_Mypair`是`_Compressed_pair<_Alty, _Scary_val>` 那么`_Myval2`就是`_Scary_val` 也即`_String_val` 而`_Myptr()`是`_String_val`的成员函数 所以`_Elem* const _Ptr = _Mypair._Myval2._Myptr();`就是获取字符串数据的指针 无论是直接存储的小字符串 还是堆分配的字符串
 
 只要大于等于16个字节就会发生分配 可以重写operator new 在release模式下进行测试
 
 # 跟踪内存分配
 
-内存是非常重要的东西 知道你的程序什么时候分配内存 特别是堆内存 是很有用的
+内存是非常重要的东西 知道你的程序什么时候分配内存 特别是堆内存 是很有用的 如果知道程序在哪里分配内存 就有可能减少它 从而优化程序 也可以更好地了解程序是如何工作的 
+
+需要重写new运算符 来检测发生的内存分配 我们可以通过在operator new中加入一个断点 来追踪这些内存分配的来源
+
+```c++
+#include <iostream>
+
+void* operator new(size_t size)
+{
+	std::cout << "Allocating " << size << " bytes\n";
+
+	return malloc(size);
+}
+
+struct Object
+{
+	int x, y, z;
+};
+
+int main()
+{
+	Object* obj = new Object;
+    std::string string = "Miku";
+}
+
+```
+
+在`return malloc(size);`这一行(第7行)设置断点 查看调用堆栈
+
+```c++
+>	Project_test.exe!operator new(unsigned __int64 size) 行 7
+ 	Project_test.exe!main() 行 17
+```
+
+所以就是`Object* obj = new Object;` 这一行调用了new
+
+`std::string string = "Miku";` 这就不会发生堆分配 因为这是小字符串 但是debug模式下仍然会发生分配 查看调用堆栈
+
+```c++
+>	Project_test.exe!operator new(unsigned __int64 size) 行 7
+    Project_test.exe!std::_Default_allocate_traits::_Allocate(const unsigned __int64 _Bytes) 行 87
+```
+
+对调用堆栈的第2行 右键 - 转到源代码 可以看到
+
+```c++
+// 来自于<xmemory>
+struct _Default_allocate_traits {
+    __declspec(allocator) static
+#ifdef __clang__ // Clang and MSVC implement P0784R7 differently; see GH-1532
+        _CONSTEXPR20
+#endif // defined(__clang__)
+        void* _Allocate(const size_t _Bytes) {
+        return ::operator new(_Bytes);
+    }
+```
+
+是在这里调用了operator new
+
+如果把调用堆栈的显示外部代码关掉 就会变成
+
+```c++
+>	Project_test.exe!operator new(unsigned __int64 size) 行 7
+ 	[外部代码]	
+ 	Project_test.exe!main() 行 17
+ 	[外部代码]	
+```
+
+如果使用智能指针`std::unique_ptr<Object> obj = std::make_unique<Object>();` 而不是显式地调用new
+
+```c++
+>	Project_test.exe!operator new(unsigned __int64 size) 行 8
+ 	Project_test.exe!std::make_unique<Object,0>() 行 3465
+```
+
+对调用堆栈的第2行转到源代码
+
+```c++
+// 来自于<memory>
+_EXPORT_STD template <class _Ty, class... _Types, enable_if_t<!is_array_v<_Ty>, int> = 0>
+_NODISCARD_SMART_PTR_ALLOC _CONSTEXPR23 unique_ptr<_Ty> make_unique(_Types&&... _Args) { // make a unique_ptr
+    return unique_ptr<_Ty>(new _Ty(_STD forward<_Types>(_Args)...));
+}
+```
+
+make_unique是调用了new
+
+```c++
+#include <iostream>
+#include <memory>
+
+void operator delete(void* memory)
+{
+	free(memory);
+}
+
+struct Object
+{
+	int x, y, z;
+};
+
+int main()
+{
+	{
+		std::unique_ptr<Object> obj = std::make_unique<Object>();
+	}
+}
+```
+
+在`free(memory);`这行设置断点 查看调用堆栈
+
+```c++
+>	Project_test.exe!operator delete(void * memory) 行 6
+ 	Project_test.exe!operator delete(void * block, unsigned __int64 __formal) 行 32
+ 	Project_test.exe!std::default_delete<Object>::operator()(Object * _Ptr) 行 3170
+ 	Project_test.exe!std::unique_ptr<Object,std::default_delete<Object>>::~unique_ptr<Object,std::default_delete<Object>>() 行 3282
+```
+
+对调用堆栈的第4行查看源代码 这是unique_ptr的析构函数
+
+```c++
+// 来自于<memory>
+_CONSTEXPR23 ~unique_ptr() noexcept {
+    if (_Mypair._Myval2) {
+        _Mypair._Get_first()(_Mypair._Myval2);
+    }
+}
+```
+
+对`_Mypair`速览定义 `_Compressed_pair<_Dx, pointer> _Mypair;`
+
+对`_Dx`速览定义 定位到了
+
+```c++
+_EXPORT_STD template <class _Ty, class _Dx /* = default_delete<_Ty> */>
+class unique_ptr {
+// ...
+```
+
+稍微往下几行也找到了 `using deleter_type = _Dx;` 说明`_Dx`是个删除器(deleter)类型
+
+所以`_Mypair._Get_first()(_Mypair._Myval2)`就是调用删除器删除了指针 我们现在就需要找到删除器的具体实现 这样才能到达下一个调用堆栈
+
+注意到对于`_Dx`的注释`/* = default_delete<_Ty> */` 我们猜想实现删除器的类名字应该就叫`default_delete` 但假如没有这个注释 大概就只能依靠直觉 或者ctrl+F搜索delete 慢慢找
+
+```c++
+struct default_delete { // default deleter for unique_ptr
+    constexpr default_delete() noexcept = default;
+
+    template <class _Ty2, enable_if_t<is_convertible_v<_Ty2*, _Ty*>, int> = 0>
+    _CONSTEXPR23 default_delete(const default_delete<_Ty2>&) noexcept {}
+
+    _CONSTEXPR23 void operator()(_Ty* _Ptr) const noexcept /* strengthened */ { // delete a pointer
+        static_assert(0 < sizeof(_Ty), "can't delete an incomplete type");
+        delete _Ptr;
+    }
+};
+```
+
+注释中写到 这确实是unique_ptr的默认删除器 在operator()发生了delete
+
+现在我们对调用堆栈的第3行查看源代码 这正是default_delete的operator()
+
+```c++
+_CONSTEXPR23 void operator()(_Ty* _Ptr) const noexcept /* strengthened */ { // delete a pointer
+    static_assert(0 < sizeof(_Ty), "can't delete an incomplete type");
+    delete _Ptr;
+}
+```
+
+当你写`delete _Ptr` 编译器会根据对象类型和上下文 选择合适的operator delete重载 从C++17开始 如果编译器知道对象的大小 (比如有类型信息) 它就会优先调用带size\_t参数的`operator delete(void*, size_t)` 而不是`operator delete(void*)` 我们在使用` std::make_unique<Object>()`分配对象时 编译器已经能确定Object的大小 所以在delete时会选择带有size的重载
+
+对调用堆栈的第2行查看源代码
+
+```c++
+// 来自于delete_scalar_size.cpp
+_CRT_SECURITYCRITICAL_ATTRIBUTE
+void __CRTDECL operator delete(void* const block, size_t const) noexcept
+{
+    operator delete(block);
+}
+```
+
+这个delete_scalar_size.cpp是一个很短的文件 是C++17 新增的重载
+
+在这个含有size的operator delete内部 实际上还是调用了不含size的operator delete 所以它最终还是会调用我们在main.cpp重载的operator delete 这就是转发
+
+调用堆栈的第1行 正是我们在main.cpp里自己重载的delete
+
+至此 我们终于完成了一次delete
+
+既然C++17的operator delete支持size_t参数 那么可以在我们的main.cpp里重载delete 增加对于size的输出
+
+```c++
+operator delete(void* memory, size_t size)
+{
+    std::cout << "Deleting " << size << " bytes\n";
+      free(memory);
+}
+```
+
+现在再去查看调用栈 就没有调用delete_scalar_size.cpp的`operator delete(void*, size_t)` 这是因为编译器优先调用了我们重载的这个`operator delete(void*, size_t)`版本
+
+```c++
+struct AllocationMetrics
+{
+	uint32_t TotalAllocated = 0; // 总共分配的内存
+	uint32_t TotalFreed = 0; // 总共释放的内存
+
+	uint32_t CurrentUsage() { return TotalAllocated - TotalFreed; }
+};
+
+static AllocationMetrics s_AllocationMetrics; // 静态实例
+
+void* operator new(size_t size)
+{
+	s_AllocationMetrics.TotalAllocated += size;
+	return malloc(size);
+}
+
+void operator delete(void* memory, size_t size)
+{
+	s_AllocationMetrics.TotalFreed -= size;
+	free(memory);
+}
+
+static void PrintMemoryUsage()
+{
+	std::cout << "Memory Usage: " << s_AllocationMetrics.CurrentUsage() << " bytes\n";
+}
+```
+
+现在你可以随时随地查看分配了多少内存 只需要调用`PrintMemoryUsage();`
+
+# 左值和右值
+
+```c++
+int i = 10;
+```
+
+左值绝大多数时候在等号左边 右值在右边 变量i是一个在内存中有位置的实际变量 数字字面量10没有存储空间 没有位置 把它赋值给左值i 但是不能给右值赋值 比如说10等于i 那就很奇怪 因为10没有位置 不能在10中存储数据
+
+```c++
+int a = i;
+```
+
+这就是设置一个左值等于一个同样是左值的值 所以说等号右边就是右值是不正确的
+
+右值不只是像那样的字面量 也可以是函数的结果
+
+```c++
+int GetValue()
+{
+	return 10;
+}
+
+int main()
+{
+	int i = GetValue();
+}
+```
+
+GetValue返回一个右值 这是一个临时值 即使它返回的是一个int 它也没有存储空间 只是返回值10 但是`i = GetValue()`就是取这个右值 把它存储到左值中 但是`GetValue() = 5` 是不能这样赋值的 将鼠标悬停在GetValue上 编译器告诉我们 表达式必须是可修改的左值 可修改的意思就是它必须是非const的 L值就是左值
+
+如果函数返回的就是左值 就需要为我的值提供某种存储空间 比如使用静态int 然后返回它
+
+```c++
+int& GetValue()
+{
+	static int value = 10;
+	return value;
+}
+
+int main()
+{
+	GetValue() = 5;
+}
+```
+
+上面这叫**左值引用** 现在就可以对它赋值
+
+```c++
+void SetValue(int value)
+{
+
+}
+
+int main()
+{
+	int i = 10;
+	SetValue(i); // 这个参数i是一个左值
+	SetValue(10); // 参数10是一个临时变量右值 这个右值会被用来创建一个左值
+}
+```
+
+如果变成
+
+```c++
+void SetValue(int& value)
+{
+
+}
+```
+
+int变成了左值引用 `SetValue(10);`就会报错 编译器告诉我们 非const引用的初始值必须是左值
+
+它提到const 显然`int& a = 10;`是不合法的 但如果是`const int& a = 10;`就可以 实际情况是编译器创建一个临时变量 `int temp = 10;` 然后再把它赋值给那个引用 `const int& a = temp;` 所以它是创建了一个左值 
+
+所以 如果改成
+
+```c++
+void SetValue(const int& value)
+{
+
+}
+```
+
+```c++
+int i = 10;
+SetValue(i);
+SetValue(10); 
+```
+
+就都是合法的 这个**const左值引用可以接收两种值**
+
+```c++
+std::string firstName = "Miku";
+std::string lastName = "Hatsune";
+
+std::string fullName = firstName + lastName; // 忽略应有的空格
+```
+
+这种情况下 左边的东西都是左值 右边的东西都是右值 `firstName + lastName`这个表达式也是右值 这是一个临时变量 临时字符串 然后赋值给了一个左值
+
+```c++
+void PrintName(std::string& name)
+{
+	std::cout << name << std::endl;
+}
+```
+
+```c++
+PrintName(fullName); // 合法
+PrintName(firstName + lastName); //不合法 因为是右值
+```
+
+所以**很多C++都是写常量引用 是为了兼容临时的右值和实际存在的左值变量**
+
+```c++
+void PrintName(const std::string& name)
+{
+	std::cout << name << std::endl;
+}
+```
+
+这样就都合法了
+
+所以我们也可以通过写非常量左值引用 观察对这个传值是否合法 来判定传入的那个值是否为左值 这是**左值引用 只能接收左值** 所以不合法的一定就是右值
+
+我们有没有办法写一个函数 只接收临时对象呢？ 为此需要右值引用 这是C++11引入的
+
+```c++
+void PrintName(std::string&& name)
+{
+	std::cout << name << std::endl;
+}
+```
+
+右值引用是两个`&`符号
+
+```c++
+PrintName(fullName); // 不合法 因为是左值
+PrintName(firstName + lastName); // 合法 因为是临时对象 右值
+```
+
+现在就不能对这个函数传左值 只能传右值 所以也可以利用右值引用 来检测是否为临时值 可以用于优化 如果我们知道传入的是一个临时对象 就不需要担心这个对象是否活着 是否完整 是否拷贝 我们知道它是临时的 就可以安全地窃取临时对象的资源 不担心我们接下来的操作会修改和删除这个临时对象 而对于`void PrintName(const std::string& name)` 就完全不能修改name 只能读取和拷贝
+
+现在我们可以写重载
+
+```c++
+void PrintName(std::string& name) // 只能接收左值
+{
+	std::cout << "[lvalue] " << name << std::endl;
+}
+
+void PrintName(const std::string& name) // 接收左值 加上const就与右值兼容
+{
+	std::cout << "[l&rvalue] " << name << std::endl;
+}
+
+void PrintName(std::string&& name) // 只能接收右值
+{
+	std::cout << "[rvalue]"<< name << std::endl;
+}
+```
+
+```c++
+PrintName(fullName); // 输出 [lvalue] MikuHatsune
+PrintName(firstName + lastName); // 输出 [rvalue] MikuHatsune
+```
+
+无论左值和右值 都没有调用`void PrintName(const std::string& name)`这个重载 因为编译器会优先选择最精确匹配的版本 所以不会选择const引用版本
+
+左值是某种存储支持的变量 右值是临时值 左值引用仅仅接收左值 除非是用const 右值引用仅仅接收右值
+
+# 持续集成 CI
+
+在一个项目中 跨越多个不同平台的多个开发人员都在这个项目上工作 并不断更新代码 可能会贡献很多bug 持续集成可以帮助我们自动化 确保代码在所有平台和所有配置下都可以编译 然后做一些自动化测试
+
+我们将建立一个C++项目 这样就可以在每次提交到github时自动构建和测试我们的应用
+
+我们使用jenkens 不详细讲解
+
+# 静态分析
+
+使用静态分析工具 检查源代码
+
+# 参数求值顺序
+
+比如我写一个函数
+
+```c++
+void PrintSum(int a, int b)
+{
+	std::cout << a << " + " << b << " = " << (a + b) << std::endl;
+}
+
+int main()
+{
+	int value = 0;
+	PrintSum(value++, value++);
+	
+	std::cin.get();
+}
+
+// 输出 1 + 0 = 1
+```
+
+实际上这是**未定义行为 具体怎样完全取决于编译器** 我们使用的C++17下的MSVC编译器就是先做了后面的`value++` 做完之后value变成1了 然后又做前面的`value++` 实际上函数执行完成之后 value是2 如果是`PrintSum(++value, ++value);` 就会输出 `2 + 1 = 3`
+
+刚刚我们是debug模式 切换到release模式下 也是一样 没有发生并行计算 如果是C++14就会显示成`0 + 0 = 0` 这是因为C++17增加了新规则 **后缀表达式必须在其它表达式之前被计算** 所以就必须一个接一个地计算 不能并行计算 但是计算顺序仍然是取决于编译器 gcc和MSVC是一样的`1 + 0 = 0` 但是会提醒你这是未定义行为 反观MSVC就是什么都不提醒 clang是反过来的`0 + 1 = 1`
+
+无论如何 **这是未定义 C++并没有提供一个规范去说明参数按照什么顺序求值 但是C++17要求 不能并行计算 必须一个接一个地完成**
+
+# 移动构造函数
+
+左值引用和右值引用的最重要应用
+
+很多时候我们不像把一个对象从一个地方复制到另一个地方 但又不得不复制 比如把一个对象传递给一个函数 那么它要获得那个对象的所有权 就只能拷贝 不得不在当前堆栈帧中创造一个临时对象 无论想取得的那个对象在哪里 总之将它复制到我正在调用的函数中 其实我们多么希望这个对象在原地就好了 但我们又不能在那里构造它 只能先在这里构造它 然后将它传递进去 如果你想取用的对象是堆内存分配的 就很麻烦了
+
+```c++
+// 这绝对不是一个写字符串类的正确方法 只是举例
+class String
+{
+public:
+	String() = default;
+	String(const char* string)
+	{
+		printf("Created!\n");
+		m_Size = strlen(string); // 不再管理\0的问题 本例中我们不关心
+		m_Data = new char[m_Size];
+		memcpy(m_Data, string, m_Size);
+	}
+
+	String(const String& other) // 拷贝构造函数
+	{
+		printf("Copy!\n");
+		m_Size = other.m_Size;
+		m_Data = new char[m_Size];
+		memcpy(m_Data, other.m_Data, m_Size);
+	}
+
+	~String()
+	{
+		delete m_Data;
+	}
+
+	void Print()
+	{
+		for (uint32_t i = 0; i < m_Size; i++)
+			printf("%c", m_Data[i]);
+		printf("\n");
+	}
+private:
+	char* m_Data;
+	uint32_t m_Size;
+};
+
+class Entity
+{
+public:
+	Entity(const String& name) : m_Name(name) {} // 拷贝构造函数
+
+	void PrintName()
+	{
+		m_Name.Print();
+	}
+private:
+	String m_Name;
+
+};
+
+int main()
+{
+	Entity entity(String("Miku"));
+	entity.PrintName();
+
+	std::cin.get();
+}
+```
+
+会输出
+
+```c++
+Created!
+Copy!
+Miku
+```
+
+为什么会调用拷贝构造函数？
+
+`Entity entity(String("Miku"));` 会先调用String的构造函数在main栈帧中创建一个String 然后调用Entity的构造函数 创建一个名为entity的Entity 我们为它传入了一个String Entity实例在构造时就要初始化`m_Name` 于是使用那个String作为name去**创建并初始化**`m_Name` 创建新的String对象并且和那个String内容相同 就需要调用String类的拷贝构造函数
+
+我们只是创造一个Entity实例 把一个字符串放进去 却要分配两次内存 在main中创建字符串的时候分配一次 传递给Entity实例复制到成员变量的时候 又分配一次 为什么我们不能就直接在成员变量`m_Name`这里分配内存 为什么不能在main中分配内存 然后移到这里
+
+现在使用移动语义 需要给String类写一个移动构造函数
+
+接收右值 也就是临时值 并且用noexcept来指定 这样就不会抛出异常
+
+```c++
+String(String&& other) noexcept // 移动构造函数
+{
+	printf("Moved!\n");
+	m_Size = other.m_Size;
+	m_Data = other.m_Data; // 把原字符串指针直接赋值给新对象
+
+	// 但是如果这个原字符串实例被析构/删除之后 数据就没了
+	other.m_Size = 0; // 把大小置为0 防止析构时删除数据
+	other.m_Data = nullptr; // 把原对象的指针置空 防止析构时删除数据
+	// 这样的话再去析构 delte m_Data就会删除nullptr
+	// 所以我们实际上只是接管了那个旧的字符串 而不是通过复制所有的数据和分配新的内存来进行深度复制（深拷贝）
+    // 实际上我们做的是浅拷贝 只是重新连接了指针
+}
+```
+
+Entity类也需要一个能接收右值的右值引用构造函数
+
+```c++
+Entity(String&& name) : m_Name(name) {}
+```
+
+这样main里的`Entity entity("Miku");` `"Miku"`就不是左值 只是作为这个Entity move构造函数的一个参数 
+
+修改后再执行
+
+```c++
+Created!
+Copy!
+Destroyed!
+Miku
+```
+
+Destroyed发生在输出Miku之前 这是因为我们的临时对象被销毁了 并且仍然有拷贝 没有发生Moved
+
+现在将Entity的右值引用构造函数改成
+
+```c++
+Entity(String&& name) : m_Name((String&&)name) {}
+```
+
+需要显式地转换为一个临时对象
+
+现在就出现Moved了
+
+也可以用
+
+```c++
+Entity(String&& name) : m_Name(std::move(name)) {}
+```
+
+# std::move
+
+如果想要现有对象移动到另一个对象中 而不是构造一个新对象 会发生什么
+
+```c++
+String string = "Hello"; // 调用拷贝构造函数
+String dest = string; // 调用拷贝构造函数 去构造一个新的字符串对象
+String dest2 = (String&&)string; // 使用类型转换 这样就是临时对象 右值 调用移动构造函数 去构造一个新的字符串对象
+String dest3((String&&)string); // 和上一行的语义是一样的 赋值操作符只是在做一个隐式转换 并调用构造函数
+```
+
+但是上面的方法并不优雅 而且不是对每个类型都适用 比如我们有一个auto类型 而这个实际类型不能通过我们像这样静态地写代码来推断
+
+我们需要的是 使用一个灵活的函数 `std::move` 编译时 它会找出输入的是什么类型
+
+```c++
+String string = "Hello"; // 调用拷贝构造函数
+String dest(std::move(string)); // 调用移动构造函数
+String dest2 = std::move(dest); // 调用移动构造函数
+```
+
+最后一行是移动赋值运算符 运算符实际上就相当于一个函数
+
+```c++
+String& operator=(String&& other) noexcept // 拷贝赋值运算符
+{
+    // 防止自我赋值 不仅毫无意义 它的操作还会把一切都弄乱 比如把当前对象的内存释放掉
+    if (this != &other)
+    {
+        printf("Moved!\n");
+
+        // 有可能当前对象已经分配了一些内存 需要将其覆盖
+        delete[] m_Data; // 释放当前对象的内存
+
+        m_Size = other.m_Size;
+        m_Data = other.m_Data; // 接管
+
+        other.m_Size = 0;
+        other.m_Data = nullptr;
+    }
+
+    return *this; // 如果是同一个对象 就返回当前对象的引用 实际上就是什么都没做
+}
+```
+
+相同对象不能赋值 如果是不同对象但数据相同 仍然需要移动 
+
+```c++
+String apple = "Apple"; // 调用拷贝构造函数
+String dest;
+
+dest = apple;
+```
+
+现在这样 `dest = apple;`就报错 由于apple是左值 所以这种情况下它只会考虑拷贝赋值运算符 而我们没有写拷贝赋值 我们只写了移动赋值 我们写的operator=只接收右值 而apple是一个左值
+
+```c++
+dest = std::move(apple);
+```
+
+这样就是使用`std::move`做了强制类型转换 `std::move`是**把你传进去的已经存在的变量(左值类型)转换为了临时变量(右值类型)** 它只是告诉编译器 后面不会再用apple了 可以放心地把apple搬走 **它本身并不做移动操作 真正的移动操作是在移动赋值运算符里实现的**
+
+**C++五法则** 构造函数、拷贝构造函数、拷贝赋值运算符、移动拷贝构造、移动赋值运算符
+
+假如dest事先创建好了 那么`dest.operator=(std::move(apple));` 和 `dest = std::move(apple);` 语义是一样的 都是调用**移动赋值运算符** 实际上等于是在调用一个函数
+`String dest = std::move(apple);` 就没有调用赋值运算符 只是使用临时值构造了一个新的字符串 使用了**移动构造函数**
+尽管它们看起来都像是在调用赋值运算符
+
+
+
+# 本文目录使用python脚本自动生成
+
+```python
+import re
+import sys
+
+def generate_toc(content):
+    """生成目录内容，不直接修改文件"""
+    # 将文件内容按行分割为列表
+    lines = content.split('\n')
+    toc = []  # 存储生成的目录项
+    in_code_block = False  # 标记当前是否在代码块内
+
+    for line in lines:
+        # line.strip()：去掉行首和行尾的空白字符（包括换行符、空格、制表符等）
+        stripped_line = line.strip()
+
+        # 检测代码块的开始/结束标记（```）
+        if stripped_line.startswith('```'):
+            # 反转代码块状态：遇到代码块开始标记设为True，结束标记设为False
+            in_code_block = not in_code_block
+            continue  # 跳过代码块标记行本身
+
+        # 如果当前在代码块内，跳过所有处理
+        if in_code_block:
+            continue
+
+        # 使用正则表达式移除行内代码（反引号包裹的内容）
+        # `[^`]*`：匹配反引号开始，中间包含非反引号字符，直到反引号结束
+        line_clean = re.sub(r'`[^`]*`', '', line)
+
+        # 使用正则表达式严格匹配 Markdown 标题语法
+        # ^#{1,6}：匹配以1到6个#开头的行
+        # \s：要求#后面必须有一个空格（排除C++宏定义）
+        # (?!目录)：排除中文"目录"关键词
+        # [^\s]：确保标题内容不是空白字符
+        if re.match(r'^#{1,6}\s(?!目录)[^\s]', line_clean.strip()):
+            # 统计标题层级：通过计算#的数量确定（1-6）
+            level = line_clean.count('#')
+            # 提取标题文本：移除开头的#并去除两端空白
+            title = line_clean.replace('#', '', level).strip()
+
+            # 跳过所有形式的目录标题（中文/英文）
+            if title.lower() in ['目录', 'contents']:
+                continue
+
+            # 根据标题层级生成缩进：每级缩进2个空格
+            indent = '  ' * (level - 1)
+            
+            # 生成锚点链接：
+            # 1. 使用正则表达式过滤特殊字符：[^\w\u4e00-\u9fff\- ] 
+            #    - \w：保留字母、数字、下划线
+            #    - \u4e00-\u9fff：保留中文字符
+            #    - \-：保留连字符
+            #    - 空格：保留用于后续转换
+            # 2. 转换为小写：.lower()
+            # 3. 空格转连字符：replace(' ', '-')
+            # 4. 处理连续连字符：replace('--', '-')
+            anchor = re.sub(r'[^\w\u4e00-\u9fff\- ]', '', title)
+            anchor = anchor.strip().lower().replace(' ', '-').replace('--', '-')
+            
+            # 生成目录项文本，格式示例：
+            #   - [标题内容](#锚点链接)
+            toc.append(f"{indent}- [{title}](#{anchor})")
+    
+    # 组合最终目录内容：
+    # 1. 添加# 目录标题
+    # 2. 拼接所有目录项
+    # 3. 添加水平分割线\n\n---\n\n
+    return '# 目录\n' + '\n'.join(toc) + '\n\n------\n\n'
+
+def update_file_content(md_file, new_toc):
+    """执行文件更新操作"""
+    # 读取文件全部内容
+    with open(md_file, 'r', encoding='utf-8') as f:
+        content = f.read()
+    
+    # 正则表达式匹配旧目录结构：
+    # ^#{1,6}\s*目录：匹配任意层级的目录标题（如# 目录、##目录）
+    # [\s\S]*?：匹配任意字符（包括换行符），非贪婪模式
+    # ^------\n：匹配水平分割线
+    pattern = r'(^#{1,6}\s*目录\s*[\s\S]*?)^------\n'
+    # re.MULTILINE：使^匹配每行开头
+    updated_content = re.sub(pattern, new_toc, content, flags=re.MULTILINE)
+    
+    # 如果没有找到旧目录，直接在文件开头插入新目录
+    if updated_content == content:
+        updated_content = new_toc + content
+    
+    # 写入更新后的内容
+    with open(md_file, 'w', encoding='utf-8') as f:
+        f.write(updated_content)
+
+if __name__ == "__main__":
+    # 命令行参数验证
+    if len(sys.argv) < 2:
+        print("请通过命令行运行：python toc.py 你的文件.md")
+        sys.exit(1)  # 非正常退出
+    
+    md_file = sys.argv[1]  # 获取输入文件路径
+    
+    try:
+        # 读取文件内容（使用utf-8编码保证中文兼容性）
+        with open(md_file, 'r', encoding='utf-8') as f:
+            content = f.read()
+        
+        # 生成新目录内容
+        new_toc = generate_toc(content)
+        
+        # 显示生成的目录（\n实现换行排版）
+        print("生成的目录：\n")
+        print(new_toc)
+
+        # 用户确认机制（.lower()统一处理大小写输入）
+        choice = input("\n是否要替换文件中的旧目录？(y/n): ").lower()
+        if choice == 'y':
+            update_file_content(md_file, new_toc)
+            print("目录已更新！")
+        else:
+            print("未修改文件")  # 用户取消操作
+    
+    # 异常处理（细化错误类型）
+    except FileNotFoundError:
+        print(f"错误：文件 {md_file} 不存在")
+    except PermissionError:
+        print(f"错误：没有文件写入权限")
+    except Exception as e:
+        print(f"发生未预期错误：{str(e)}")
+```
+
+在命令行中处理带有空格的文件路径的方法：
+
+1. 引号包裹路径
+   在路径两侧添加英文双引号 告诉命令行将整个路径视为一个整体
+   `cd "C:\Program Files\My Project"`
+
+2. 自动化工具中的路径处理在编程或脚本中 建议始终使用编程语言提供的路径处理函数（如 Python 的 `os.path`） 避免手动拼接路径
+
+   ```python
+   import os
+     
+   path = os.path.join("C:", "Program Files", "My Project")  # 自动处理路径分隔符和空格
+   print(path)  # 输出：C:\Program Files\My Project
+   ```

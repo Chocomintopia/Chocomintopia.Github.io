@@ -188,7 +188,14 @@
 }
 
 mjx-container[display="true"] {
-    font-size: 1.5em !important;
+    font-size: 1.25em !important;
     margin: 1em 0 !important;
     text-align: center !important;
+    mjx-math {
+        font-size: 1em !important;
+    }
+}
+
+.math-container mjx-container[display="true"] {
+    font-size: 1.25em !important;
 }

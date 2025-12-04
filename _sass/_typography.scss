@@ -186,3 +186,37 @@
         font-size: 19px;
     }
 }
+
+// MathJax 公式样式调整
+// 确保行间公式与行内公式字号一致
+
+.MathJax {
+    font-size: 1em !important;
+
+    &_Display {
+        margin: 1em 0 !important;
+
+        .MJXc-display {
+            font-size: 1em !important;
+        }
+    }
+}
+
+// 针对 MathJax 3.x 的样式
+mjx-container {
+    font-size: 1em !important;
+
+    &[display="true"] {
+        margin: 1em 0 !important;
+        font-size: 1em !important;
+
+        mjx-math {
+            font-size: 1em !important;
+        }
+    }
+}
+
+// 确保公式在代码块中也能正确显示
+pre code .MathJax {
+    font-size: 1em !important;
+}

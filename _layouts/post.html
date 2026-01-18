@@ -5,6 +5,9 @@ layout: default
 <div class="content container">
     <div class="post-date">
         <time>{{ page.date | date: '%B %d, %Y '}}</time>
+        <!-- 下面这行是用于计算字数的 必要时可删去 -->
+        <span style="margin-left: 15px;">{{ page.content | strip_html | number_of_words }} words</span>
+        <!-- 上面这行是用于计算字数的 必要时可删去-->
     </div>
     <h1 class="post-title">{{ page.title }}</h1>
     {{ content }}

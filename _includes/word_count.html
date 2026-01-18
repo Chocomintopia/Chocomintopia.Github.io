@@ -1,0 +1,6 @@
+{% assign text = include.content | strip_html %}
+{% assign chinese_chars = text | size | minus: text.size | abs %}
+{% assign english_words = text | split: " " | size %}
+{% assign word_count = chinese_chars | plus: english_words %}
+
+{{ word_count }}

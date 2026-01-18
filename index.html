@@ -15,9 +15,10 @@ layout: default
                 </span>
                 <span class="post-time alignable pull-right">
                     <time>{{ post.date | date: '%B %d, %Y '}}</time>
-                    <!-- 下面这行是用于计算字数的 必要时可删去 -->
-                    <span style="margin-left: 15px;">约 {{ post.content | strip_html | number_of_words }} words</span>
-                    <!-- 上面这行是用于计算字数的 必要时可删去-->
+                    <!-- 下面是用于计算字数的 必要时可删去 -->
+                    <span style="margin: 0 8px;">|</span>
+                    <span>{{ post.content | strip_html | size }} 字</span>
+                    <!-- 上面是用于计算字数的 必要时可删去-->
                 </span>
                 <div style="clear:both"></div>
             </div>

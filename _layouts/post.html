@@ -7,7 +7,14 @@ layout: default
         <time>{{ page.date | date: '%B %d, %Y '}}</time>
         <!-- 下面是用于计算字数的 必要时可删去 -->
         <span style="margin: 0 8px;">|</span>
-        <span>约 {% include word_count.html content=page.content %} 词</span>
+        <span>
+            约 
+            {% assign text = content | strip_html %}
+            {% assign total_chars = text | size %}
+            {% assign word_count = total_chars | times: 0.7 | round %}
+            {{ word_count }} 
+            词
+        </span>
         <!-- 上面是用于计算字数的 必要时可删去-->
     </div>
     <h1 class="post-title">{{ page.title }}</h1>

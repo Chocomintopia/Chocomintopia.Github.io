@@ -6,7 +6,7 @@ baseurl: ""
 
 # This will show up at the top of index page
 site_heading: >
-    note
+    Index
 
 email: 
 author: 39

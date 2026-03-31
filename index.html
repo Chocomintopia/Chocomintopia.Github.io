@@ -21,9 +21,9 @@ layout: default
                         约 
                         {% assign text = post.content | strip_html %}
                         {% assign total_chars = text | size %}
-                        {% assign word_count = total_chars | times: 0.7 | round %}
+                        {% assign word_count = total_chars | times: 0.6 | round %}
                         {{ word_count }} 
-                        词
+                        字
                     </span>
                     <!-- 上面是用于计算字数的 必要时可删去-->
                 </span>
